@@ -40,7 +40,7 @@
       font-weight: bold;
     }
     .detail {
-      color: #888;         /* grey color for extra detail */
+      color: #5f5f5f;         /* grey color for extra detail */
       font-size: 0.85em;   /* slightly smaller than main text */
       margin-left: 4px;    /* small space after main text */
     }
@@ -94,17 +94,32 @@
 <table>
   <tr>
     <th></th>
-    <th class="nbc">NBC<span class="pdat">(0$)</span></th>
-    <th class="bc">BC<span class="pdat">(10$/mo or 100$/yr)</span></th>
-    <th class="tbc">TBC<span class="pdat">(25$/mo or 250$/yr)</span></th>
-    <th class="obc">OBC<span class="pdat">(50$/mo or 500$/yr)</span></th>
+    <th class="nbc">NBC</th>
+    <th class="bc">BC</th>
+    <th class="tbc">TBC</th>
+    <th class="obc">OBC</th>
+  </tr>
+    <tr>
+    <td class="perk-col">Price (Monthly)</td>
+    <td>0$</td>
+    <td>10$</td>
+    <td>25$</td>
+    <td>50$</td>
+  </tr>
+  </tr>
+    <tr>
+    <td class="perk-col">Price (Yearly)</td>
+    <td>0$</td>
+    <td>100$</td>
+    <td>250$</td>
+    <td>500$</td>
   </tr>
   <tr>
     <td class="perk-col">Daily Robux (Stripen)</td>
     <td>0</td>
-    <td>60</td>
-    <td>154</td>
-    <td>333</td>
+    <td>20<span class="detail">(62 RS/$)</span></td>
+    <td>61<span class="detail">(75.64 RS/$)</span></td>
+    <td>150<span class="detail">(93 RS/$)</span></td>
   </tr>
   <tr>
     <td class="perk-col">Groups Allowed</td>
@@ -114,7 +129,7 @@
     <td>100</td>
   </tr>
   <tr>
-    <td class="perk-col">Extra Game Slots</td>
+    <td class="perk-col">Extra Player Slots<sub>*1</sub></td>
     <td>0</td>
     <td>4</td>
     <td>8</td>
@@ -141,11 +156,18 @@
     <td class="yes">Yes</td>
     <td class="yes">Yes</td>
   </tr>
+  <tr>
+    <td class="perk-col">Private Servers</td>
+    <td class="no">No</td>
+    <td class="partial">Partial<span class="detail">(Free only)</span></td>
+    <td class="yes">Yes</td>
+    <td class="yes">Yes</td>
+  </tr>
     <tr>
     <td class="perk-col">Can create groups</td>
     <td class="no">No</td>
-    <td class="yes">Yes<span class="detail">(10)</span></td>
-    <td class="yes">Yes<span class="detail">(25)</span></td>
+    <td class="partial">Partial<span class="detail">(10)</span></td>
+    <td class="partial">Partial<span class="detail">(25)</span></td>
     <td class="yes">Yes</td>
   </tr>
   </tr>
@@ -161,6 +183,9 @@
 
         <p style="margin-top:10px;">
           <button onclick="alert('Mockup only — purchase not available')">Join Builder’s Club</button>
+        </p>
+        <p>
+            *1: Some games may not allow this perk.
         </p>
       </div>
     </div>
