@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ROBLOX - Builder’s Club Redesign</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #e9f0f9;
+    }
+    th.nbc { background-color: white; color: black; }
+    th.bc  { background-color: #1e90ff; color: white; }  /* Blue */
+    th.tbc { background-color: #ffcc00; color: black; }  /* Yellow */
+    th.obc { background-color: #ff6600; color: white; }  /* Orange */
+    .perk-col {
+      text-align: left;
+      background: #f9f9f9;
+      font-weight: bold;
+    }
+    .yes {
+      color: green;
+      font-weight: bold;
+    }
+    .no {
+      color: red;
+      font-weight: bold;
+    }
+    .partial {
+      color: rgb(142, 142, 0);
+      font-weight: bold;
+    }
+    .detail {
+      color: #888;         /* grey color for extra detail */
+      font-size: 0.85em;   /* slightly smaller than main text */
+      margin-left: 4px;    /* small space after main text */
+    }
+    .pdat {
+      color: #75b27d;         /* grey color for extra detail */
+      font-size: 0.85em;   /* slightly smaller than main text */
+      margin-left: 4px;    /* small space after main text */
+    }
+    /* Alternate column colors for table body */
+    table td:nth-child(2) { background-color: #f9f9f9; }  /* NBC column */
+    table td:nth-child(3) { background-color: #eef6ff; }  /* BC column (light blue) */
+    table td:nth-child(4) { background-color: #fffbe0; }  /* TBC column (light yellow) */
+    table td:nth-child(5) { background-color: #ffe6cc; }  /* OBC column (light orange) */
+
+/* Keep first column (perk names) gray/white */
+    table td.perk-col { background-color: #f5f5f5; text-align: left; font-weight: bold; }
+  </style>
+  
+</head>
+<body>
+  <header>
+    <div class="logo">ROBLOX</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="buildersclub.html">Builder’s Club</a>
+       <a href="foundingclub.html">Founder's Club</a>
+      <a href="robux.html">Buy Robux</a>
+      <a href="profile.html">Profile</a>
+    </nav>
+  </header>
+
+  <div id="wrap">
+    <div class="sidebar">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="#">Friends</a></li>
+        <li><a href="#">Messages</a></li>
+        <li><a href="#">Inventory</a></li>
+        <li><a href="buildersclub.html">Builder's Club</a></li>
+        <li><a href="foundingclub.html">Founder's Club</a></li>
+        <li><a href="robux.html">Buy Robux</a></li>
+      </ul>
+    </div>
+
+    <div class="content">
+      <div class="box">
+        <h1>Builder’s Club Memberships</h1>
+        <p>Compare the different membership tiers below. Each tier has unique perks and daily Robux stipends.</p>
+        <p>Builder's Club will stack ontop of Founding User perks.</p>
+<table>
+  <tr>
+    <th></th>
+    <th class="nbc">NBC<span class="pdat">(0$)</span></th>
+    <th class="bc">BC<span class="pdat">(10$/mo or 100$/yr)</span></th>
+    <th class="tbc">TBC<span class="pdat">(25$/mo or 250$/yr)</span></th>
+    <th class="obc">OBC<span class="pdat">(50$/mo or 500$/yr)</span></th>
+  </tr>
+  <tr>
+    <td class="perk-col">Daily Robux (Stripen)</td>
+    <td>0</td>
+    <td>60</td>
+    <td>154</td>
+    <td>333</td>
+  </tr>
+  <tr>
+    <td class="perk-col">Groups Allowed</td>
+    <td>5</td>
+    <td>25</td>
+    <td>50</td>
+    <td>100</td>
+  </tr>
+  <tr>
+    <td class="perk-col">Extra Game Slots</td>
+    <td>0</td>
+    <td>4</td>
+    <td>8</td>
+    <td>12</td>
+  </tr>
+  <tr>
+    <td class="perk-col">Extra Robux on Purchase</td>
+    <td>0%</td>
+    <td>+2.5%</td>
+    <td>+7.5%</td>
+    <td>+12.5%</td>
+  </tr>
+  <tr>
+    <td class="perk-col">Custom Icon/Badge</td>
+    <td>No Icon</td>
+    <td>Custom Icon</td>
+    <td>Custom Icon</td>
+    <td>Custom Icon</td>
+  </tr>
+  <tr>
+    <td class="perk-col">Custom Hat on Purchase</td>
+    <td class="no">No</td>
+    <td class="yes">Yes</td>
+    <td class="yes">Yes</td>
+    <td class="yes">Yes</td>
+  </tr>
+    <tr>
+    <td class="perk-col">Can create groups</td>
+    <td class="no">No</td>
+    <td class="yes">Yes<span class="detail">(10)</span></td>
+    <td class="yes">Yes<span class="detail">(25)</span></td>
+    <td class="yes">Yes</td>
+  </tr>
+  </tr>
+    <tr>
+    <td class="perk-col">Beta Feature Access</td>
+    <td class="no">No</td>
+    <td class="no">No</td>
+    <td class="partial">Partial</td>
+    <td class="yes">Yes</td>
+  </tr>
+</table>
+
+
+        <p style="margin-top:10px;">
+          <button onclick="alert('Mockup only — purchase not available')">Join Builder’s Club</button>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 Roblox Redesign — This is a fan mockup.
+  </footer>
+</body>
+</html>
