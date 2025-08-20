@@ -7,6 +7,309 @@ body {
   color: #111;
 }
 
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 2px solid #ccc;
+  background-color: #989898; /* solid color of your choice */
+  border-radius: 8px;
+}
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      background: #dfe7f0;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      color: #678;
+    }
+
+    .profile-info {
+      flex: 1;
+    }
+
+    .profile-info-staff h1 {
+      margin: 0;
+      font-size: 22px;
+      color: hsl(200, 90%, 55%);
+    }
+
+    .profile-info-cc-yt h1 {
+      margin: 0;
+      font-size: 22px;
+      color: #ef0404;
+    }
+
+    .profile-info-cc-tw h1 {
+      margin: 0;
+      font-size: 22px;
+      color: #270353;
+    }
+
+    .profile-info-gf h1 {
+      margin: 0;
+      font-size: 22px;
+      color: #EFBF04;
+    }
+
+    .profile-info-sf h1 {
+      margin: 0;
+      font-size: 22px;
+      color: #c4c4c4;
+    }
+
+    .profile-info-bf h1 {
+      margin: 0;
+      font-size: 22px;
+      color: #ce8946;
+    }
+
+    .profile-info h1 {
+      margin: 0;
+      font-size: 22px;
+      color: hsl(0, 0%, 100%);
+    }
+
+    .profile-info .meta {
+      font-size: 12px;
+      color: #ffffff;
+      margin-top: 4px;
+    }
+
+    .badges {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      background: gold;
+      color: #111;
+      border: 2px solid #000000;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .badge-cc-yt {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #ef0404;
+      color: white;
+      border: 2px solid #000000;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .badge-cc-tw {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #270353;
+      color: white;
+      border: 2px solid #000000;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .badge-obc {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #ff6600;
+      color: white;
+      border: 2px solid #000000;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .badge-tbc {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #ffcc00;
+      color: black;
+      border: 2px solid #000000;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .badge-bc {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #1e90ff;
+      color: white;
+      border: 2px solid #000000;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+  
+    .badge-goldfounder {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #EFBF04;
+      color: black;
+      border: 2px solid #000000;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .badge-silvfounder {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #c4c4c4;
+      color: black;
+      border: 2px solid #000000;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+        .badge-bronfounder {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #ce8946;
+      color: black;
+      border: 2px solid #000000;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .badge-family {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #b5c7eb;
+      color: black;
+      border: 2px solid #000000;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .profile-stats {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .stat-box {
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      flex: 1;
+      text-align: center;
+    }
+
+    .stat-box h3 {
+      margin: 0 0 4px 0;
+      font-size: 16px;
+      color: #134a86;
+    }
+
+    .stat-box p {
+      margin: 0;
+      font-size: 14px;
+      color: #222;
+    }
+
+    /* Optional: profile description */
+    .profile-desc {
+      margin-top: 16px;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    /* Groups section */
+.profile-groups {
+  margin-top: 16px;
+}
+
+.profile-groups h3 {
+  font-size: 16px;
+  color: #134a86;
+  margin-bottom: 8px;
+}
+
+.group-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.group-box {
+  background: #e6f0ff;
+  color: #134a86;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  border: 1px solid #c0d4f0;
+}
+/* Groups section container */
+.profile-groups {
+  margin-top: 16px;
+  background: #fff; /* main group section white background */
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* Groups heading */
+.profile-groups h3 {
+  font-size: 16px;
+  color: #134a86;
+  margin-bottom: 12px;
+}
+
+/* Container for all group boxes */
+.group-list-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Individual group box */
+.group-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100px;
+  padding: 6px;
+  background: #e6f0ff;
+  border: 1px solid #c0d4f0;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: #134a86;
+}
+
+.group-icon {
+  width: 64px;  /* scaled down from 512x512 */
+  height: 64px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  object-fit: cover;
+  border: 1px solid #cfd8e6;
+}
+
 header {
   background: linear-gradient(#2b78c7, #1a5f9a);
   color: #fff;
@@ -101,3 +404,90 @@ footer {
   color: #555;
   text-align: center;
 }
+/* Founders table */
+    .founders-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    .founders-table th, .founders-table td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .founders-table th {
+      background: #444;
+      color: #fff;
+    }
+
+    .founders-table td {
+      background: #fafafa;
+    }
+
+    .founders-highlight {
+      color: #2b78c7;
+      font-weight: bold;
+    }
+/* Error page */
+    .error-container {
+      max-width: 600px;
+      margin: 100px auto;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 24px;
+      text-align: center;
+      border-radius: 8px;
+    }
+
+    .error-container h1 {
+      font-size: 36px;
+      color: #c00;
+      margin-bottom: 16px;
+    }
+
+    .error-container p {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 12px;
+    }
+
+    .error-container a {
+      color: #134a86;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .error-container a:hover {
+      text-decoration: underline;
+    }
+
+/* BC */
+    .perk-col {
+      text-align: left;
+      background: #f9f9f9;
+      font-weight: bold;
+    }
+    .yes {
+      color: green;
+      font-weight: bold;
+    }
+    .no {
+      color: red;
+      font-weight: bold;
+    }
+    .partial {
+      color: rgb(142, 142, 0);
+      font-weight: bold;
+    }
+    .detail {
+      color: #5f5f5f;         /* grey color for extra detail */
+      font-size: 0.85em;   /* slightly smaller than main text */
+      margin-left: 4px;    /* small space after main text */
+    }
+    .pdat {
+      color: #75b27d;         /* grey color for extra detail */
+      font-size: 0.85em;   /* slightly smaller than main text */
+      margin-left: 4px;    /* small space after main text */
+    }
