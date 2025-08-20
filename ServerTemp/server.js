@@ -6,9 +6,21 @@ const path = require("path");
 const PORT = 3000;
 const PUBLIC_DIR = path.join(__dirname, "public");
 
+const SidebarExtra = [
+  { text: "Inventory", url: "inventory.html" },
+  { text: "Messages", url: "messages.html" },
+  { text: "Friends", url: "friends.html" },
+  { text: "Profile", url: "profile.html" },
+  { text: "Buy Atheris", url: "atheris.html" }
+];
+const HeaderExtra = [
+  { text: "Buy Atheris", url: "atheris.html"},
+  { text: "Profile", url: "profile.html"}
+]
+
 http.createServer((req, res) => {
   // Default file
-  console.log(`[CALL] ${req.url} from ${req.socket.remoteAddress}`)
+  //console.log(`[CALL] ${req.url} from ${req.socket.remoteAddress}`)
   res.setHeader("Access-Control-Allow-Origin", "*");
   let filePath = req.url.split("?")[0];
   filePath = req.url === "/" ? "/index.html" : filePath;
@@ -17,8 +29,10 @@ http.createServer((req, res) => {
 
   fs.readFile(filePath, "utf8", (err, data) => {
     const ext = path.extname(filePath).toLowerCase();
+    const name = path.basename(filePath, ext)
+    let IsLoggedIn = false  //Currently unavaliable in the site, but temporary code.
     if (err) {
-      
+
       // File not found, serve custom 404.html
       const errorPage = path.join(PUBLIC_DIR, "error.html");
       fs.readFile(errorPage, (err404, data404) => {
@@ -32,6 +46,9 @@ http.createServer((req, res) => {
             res.writeHead(404, { "Content-Type": "text/html" });
             res.end(data404);
           }
+        } else {
+          res.writeHead(404, { "Content-Type": "text/plain" });
+          res.end("404: File Not Found");
         }
       });
     } else {
@@ -44,7 +61,23 @@ http.createServer((req, res) => {
       if (ext === ".jpg" || ext === ".jpeg") contentType = "image/jpeg";
       if (ext === ".svg") contentType = "image/svg+xml";
       if (ext === ".html") contentType = "text/html";
-
+      //console.log(name + " | " + ext)
+      function AppendExtra(lnk,dat,liseg) {
+        data = data.replace(
+          /<\/(ul|nav)>/i,
+          `\n${liseg ? "<li>" : ""}<a href="${lnk}">${dat}</a>${liseg ? "</li>" : ""}\n${liseg ? "</ul>" : "</nav>"}`
+        );
+      }
+      if (contentType === "text/html" && name == "sidebar" && IsLoggedIn) {
+       SidebarExtra.forEach(seg => {
+        AppendExtra(seg.url,seg.text,true)
+       });
+      }
+      if (contentType === "text/html" && name == "Header" && IsLoggedIn) {
+       HeaderExtra.forEach(seg => {
+        AppendExtra(seg.url,seg.text,false)
+       });
+      }
       // Inject ExtraData only for HTML files
       if (contentType == "text/html" && ExtraData) {
         data = data.replace(
@@ -58,7 +91,7 @@ http.createServer((req, res) => {
         );
       }
 
-      if (contentType === "Err/NOTFOUND"){
+      if (contentType === "Err/NOTFOUND") {
         res.writeHead(404, { "Content-Type": contentType });
         res.end(data);
       } else {
