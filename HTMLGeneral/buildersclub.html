@@ -22,33 +22,6 @@
     th.bc  { background-color: #1e90ff; color: white; }  /* Blue */
     th.tbc { background-color: #ffcc00; color: black; }  /* Yellow */
     th.obc { background-color: #ff6600; color: white; }  /* Orange */
-    .perk-col {
-      text-align: left;
-      background: #f9f9f9;
-      font-weight: bold;
-    }
-    .yes {
-      color: green;
-      font-weight: bold;
-    }
-    .no {
-      color: red;
-      font-weight: bold;
-    }
-    .partial {
-      color: rgb(142, 142, 0);
-      font-weight: bold;
-    }
-    .detail {
-      color: #5f5f5f;         /* grey color for extra detail */
-      font-size: 0.85em;   /* slightly smaller than main text */
-      margin-left: 4px;    /* small space after main text */
-    }
-    .pdat {
-      color: #75b27d;         /* grey color for extra detail */
-      font-size: 0.85em;   /* slightly smaller than main text */
-      margin-left: 4px;    /* small space after main text */
-    }
     /* Alternate column colors for table body */
     table td:nth-child(2) { background-color: #f9f9f9; }  /* NBC column */
     table td:nth-child(3) { background-color: #eef6ff; }  /* BC column (light blue) */
@@ -61,36 +34,15 @@
   
 </head>
 <body>
-  <header>
-    <div class="logo">ROBLOX</div>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="buildersclub.html">Builder’s Club</a>
-       <a href="foundingclub.html">Founder's Club</a>
-      <a href="robux.html">Buy Robux</a>
-      <a href="profile.html">Profile</a>
-    </nav>
-  </header>
-
-  <div id="wrap">
-    <div class="sidebar">
-      <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="profile.html">Profile</a></li>
-        <li><a href="#">Friends</a></li>
-        <li><a href="#">Messages</a></li>
-        <li><a href="#">Inventory</a></li>
-        <li><a href="buildersclub.html">Builder's Club</a></li>
-        <li><a href="foundingclub.html">Founder's Club</a></li>
-        <li><a href="robux.html">Buy Robux</a></li>
-      </ul>
-    </div>
+<div id="header-container"></div>
+<div id="wrap">
+<div id="sidebar-container"></div>
 
     <div class="content">
       <div class="box">
         <h1>Builder’s Club Memberships</h1>
         <p>Compare the different membership tiers below. Each tier has unique perks and daily Robux stipends.</p>
-        <p>Builder's Club will stack ontop of Founding User perks.</p>
+        <p>Builder's Club will stack ontop of Founding User perks<sub>(1)</sub>.</p>
 <table>
   <tr>
     <th></th>
@@ -115,11 +67,11 @@
     <td>500$</td>
   </tr>
   <tr>
-    <td class="perk-col">Daily Robux (Stripen)</td>
+    <td class="perk-col">Daily Atheris (Stripen)</td>
     <td>0</td>
-    <td>20<span class="detail">(62 RS/$)</span></td>
-    <td>61<span class="detail">(75.64 RS/$)</span></td>
-    <td>150<span class="detail">(93 RS/$)</span></td>
+    <td>20<span class="detail">(62 AH/$)</span></td>
+    <td>61<span class="detail">(75.64 AH/$)</span></td>
+    <td>150<span class="detail">(93 AH/$)</span></td>
   </tr>
   <tr>
     <td class="perk-col">Groups Allowed</td>
@@ -129,18 +81,18 @@
     <td>100</td>
   </tr>
   <tr>
-    <td class="perk-col">Extra Player Slots<sub>*1</sub></td>
+    <td class="perk-col">Extra Player Slots<sub>(2)</sub></td>
     <td>0</td>
     <td>4</td>
     <td>8</td>
     <td>12</td>
   </tr>
   <tr>
-    <td class="perk-col">Extra Robux on Purchase</td>
+    <td class="perk-col">Extra Atheris on Purchase</td>
     <td>0%</td>
     <td>+2.5%</td>
+    <td>+5%</td>
     <td>+7.5%</td>
-    <td>+12.5%</td>
   </tr>
   <tr>
     <td class="perk-col">Custom Icon/Badge</td>
@@ -185,14 +137,39 @@
           <button onclick="alert('Mockup only — purchase not available')">Join Builder’s Club</button>
         </p>
         <p>
-            *1: Some games may not allow this perk.
+          (1): Extra Atheris purchases are based on highest value.
+        </p>
+        <p>
+            (2): Some games may not allow this perk.
         </p>
       </div>
     </div>
   </div>
 
-  <footer>
-    © 2025 Roblox Redesign — This is a fan mockup.
-  </footer>
+<div id="footer-container"></div>
+    <script>
+  // URL to your public SiteSources folder
+ const BASE_URL = "http://192.168.87.101:3000/SiteSources/";
+
+  // Fetch sidebar HTML and inject
+  fetch(BASE_URL + "sidebar.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("sidebar-container").innerHTML = html;
+    })
+    .catch(err => console.error("Error loading sidebar:", err));
+  fetch(BASE_URL + "Header.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("header-container").innerHTML = html;
+    })
+    .catch(err => console.error("Error loading header:", err));
+  fetch(BASE_URL + "Footer.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("footer-container").innerHTML = html;
+    })
+    .catch(err => console.error("Error loading header:", err));
+</script>
 </body>
 </html>
