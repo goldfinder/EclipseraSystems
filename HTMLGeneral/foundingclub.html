@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Founder’s Club - ROBLOX</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Extra Founder’s Club specific styles */
+  </style>
+</head>
+<body>
+<div id="header-container"></div>
+<div id="wrap">
+<div id="sidebar-container"></div>
+
+    <main class="content">
+      <div class="box">
+        <h1>Founder’s Club</h1>
+        <p class="founders-highlight">Exclusive membership for the first wave of users who support our platform.</p>
+        
+        <table class="founders-table">
+          <tr>
+            <th>Plan</th>
+            <th>Price</th>
+            <th>Daily Atheris</th>
+            <th>Groups</th>
+            <th>Extra gameplay slots</th>
+            <th>Extra Atheris on Purchase</th>
+            <th>Special Benefits</th>
+          </tr>
+          <tr>
+            <td class="founders-highlight">COPPER Founder</td>
+            <td>$25 (one-time)</td>
+            <td>+30 Atheris / day</td>
+            <td>+10 groups</td>
+            <td>+4 Extra Founder Slots</td>
+            <td>5% Extra</td>
+            <td>
+              <ul style="text-align:left; margin:0; padding-left:16px;">
+                <li>Permanent membership</li>
+                <li>Exclusive Founder’s Hat</li>
+                <li>Custom icon</li>
+                <li>Name tag Coloring</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td class="founders-highlight">SILVER Founder</td>
+            <td>$50 (one-time)</td>
+            <td>+60 Atheris / day</td>
+            <td>+20 groups</td>
+            <td>+8 Extra Founder Slots</td>
+            <td>10% Extra</td>
+            <td>
+              <ul style="text-align:left; margin:0; padding-left:16px;">
+                <li>Permanent membership</li>
+                <li>Exclusive Founder’s Hat</li>
+                <li>Custom icon</li>
+                <li>Name tag Coloring</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td class="founders-highlight">GOLD Founder</td>
+            <td>$100 (one-time)</td>
+            <td>+120 Atheris / day</td>
+            <td>+40 groups</td>
+            <td>+12 Extra Founder Slots</td>
+            <td>15% Extra</td>
+            <td>
+              <ul style="text-align:left; margin:0; padding-left:16px;">
+                <li>Permanent membership</li>
+                <li>Exclusive Founder’s Hat</li>
+                <li>Custom icon</li>
+                <li>Name tag Coloring</li>
+              </ul>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </main>
+  </div>
+
+<div id="footer-container"></div>
+    <script>
+  // URL to your public SiteSources folder
+ const BASE_URL = "http://192.168.87.101:3000/SiteSources/";
+
+  // Fetch sidebar HTML and inject
+  fetch(BASE_URL + "sidebar.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("sidebar-container").innerHTML = html;
+    })
+    .catch(err => console.error("Error loading sidebar:", err));
+  fetch(BASE_URL + "Header.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("header-container").innerHTML = html;
+    })
+    .catch(err => console.error("Error loading header:", err));
+  fetch(BASE_URL + "Footer.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("footer-container").innerHTML = html;
+    })
+    .catch(err => console.error("Error loading header:", err));
+</script>
+</body>
+</html>
