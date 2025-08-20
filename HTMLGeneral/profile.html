@@ -78,6 +78,28 @@
     // URL to your public SiteSources folder
     const BASE_URL = "http://192.168.87.101:3000/SiteSources/";
     const PBASE_URL = "http://192.168.87.101:3000/PlayerSources/";
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const badgeMap = {
+      "BC3": { class: "badge-obc", name: "OBC" },
+      "BC2": { class: "badge-tbc", name: "TBC" },
+      "BC1": { class: "badge-bc", name: "BC" },
+      "FC3": { class: "badge-goldfounder", name: "GOLD FOUNDER" },
+      "FC2": { class: "badge-silvfounder", name: "SILVER FOUNDER" },
+      "FC1": { class: "badge-bronfounder", name: "BRONZE FOUNDER" },
+      "FF": { class: "badge-family", name: "FOUNDER FAMILY" },
+      "CC-YT": { class: "badge-cc-yt", name: "CONTENT CREATOR" },
+      "CC-TW": { class: "badge-cc-tw", name: "CONTENT CREATOR" }
+    };
+    const profileClasses = {
+      "Staff": "profile-info-staff",
+      "FF": "profile-info-staff",
+      "CC-YT": "profile-info-cc-yt",
+      "CC-TW": "profile-info-cc-tw",
+      "FC3": "profile-info-gf",
+      "FC2": "profile-info-sf",
+      "FC1": "profile-info-bf"
+    };
+    const profilePriority = ["Staff", "FF", "CC-YT", "CC-TW", "FC3", "FC2", "FC1"];
     console.log("ExtraData is:", window.EXTRA_DATA);
 
     // Fetch sidebar HTML and inject
@@ -106,75 +128,30 @@
       PD = PD.split("=")[1];
       fetch(PBASE_URL + PD + ".json")
         .then(res => {
-          if (!res.ok) console.log("WAUGH");
+          if (!res.ok) throw new Error("Failure to load JSON.");
           return res.json();
         })
         .then(PDAT => {
           console.log("PDAT: ", PDAT);
           document.getElementById("PlayerName").innerText = PDAT.Name
           let creationdate = PDAT.CreationDate.split(":")
-          let month = creationdate[1]
-          if (month === "01") month = "January";
-          if (month === "02") month = "Febuary";
-          if (month === "03") month = "March";
-          if (month === "04") month = "April";
-          if (month === "05") month = "May";
-          if (month === "06") month = "June";
-          if (month === "07") month = "July";
-          if (month === "08") month = "August";
-          if (month === "09") month = "September";
-          if (month === "10") month = "October";
-          if (month === "11") month = "November";
-          if (month === "12") month = "December";
+          let month = months[parseInt(creationdate[1], 10) - 1]
           let year = creationdate[0]
           let day = creationdate[2]
           document.getElementById("CreationDate").innerText = "Member Since: " + month + " " + day + ", " + year
           document.getElementById("AboutMe").innerHTML = "<strong>About me:</strong> " + PDAT.AboutMe
 
-
           let badgeContainer = document.getElementById("BadgeCont");
           badgeContainer.innerHTML = ""; // clear old badges
           if (PDAT.Badges && PDAT.Badges.length > 0) {
             let PCON = document.getElementById("PlayerProfile")
-            if (PDAT.Badges.includes("Staff") || PDAT.Badges.includes("FF")) {
-              PCON.className = "profile-info-staff"
-            } else if (PDAT.Badges.includes("CC-YT")) {
-              PCON.className = "profile-info-cc-yt"
-            } else if (PDAT.Badges.includes("CC-TW")) {
-              PCON.className = "profile-info-cc-tw"
-            } else if (PDAT.Badges.includes("FC1")) {
-              PCON.className = "profile-info-bf"
-            } else if (PDAT.Badges.includes("FC2")) {
-              PCON.className = "profile-info-sf"
-            } else if (PDAT.Badges.includes("FC3")) {
-              PCON.className = "profile-info-gf"
-            } else {
-              PCON.className = "profile-info"
-            }
+            const topBadge = profilePriority.find(b => PDAT.Badges.includes(b));
+            document.getElementById("PlayerProfile").className = topBadge ? profileClasses[topBadge] : "profile-info";
             PDAT.Badges.forEach(badge => {
-              let div = document.createElement("div")
-              let badgeclass = "badge";
-              if (badge === "BC3") badgeclass = "badge-obc";
-              if (badge === "BC2") badgeclass = "badge-tbc";
-              if (badge === "BC1") badgeclass = "badge-bc";
-              if (badge === "FC3") badgeclass = "badge-goldfounder";
-              if (badge === "FC2") badgeclass = "badge-silvfounder";
-              if (badge === "FC1") badgeclass = "badge-bronfounder";
-              if (badge === "FF") badgeclass = "badge-family";
-              if (badge === "CC-YT") badgeclass = "badge-cc-yt";
-              if (badge === "CC-TW") badgeclass = "badge-cc-tw";
-              div.className = badgeclass;
-              let badgename = badge
-              if (badgename === "BC3") badgename = "OBC";
-              if (badgename === "BC2") badgename = "TBC";
-              if (badgename === "BC1") badgename = "BC";
-              if (badgename === "FC3") badgename = "GOLD FOUNDER";
-              if (badgename === "FC2") badgename = "SILVER FOUNDER";
-              if (badgename === "FC1") badgename = "BRONZE FOUNDER";
-              if (badgename === "FF") badgename = "FOUNDER FAMILY";
-              if (badgename === "CC-YT") badgename = "CONTENT CREATOR";
-              if (badgename === "CC-TW") badgename = "CONTENT CREATOR";
-              div.innerText = badgename;
+              const div = document.createElement("div");
+              const mapping = badgeMap[badge] || { class: "badge", name: badge };
+              div.className = mapping.class;
+              div.innerText = mapping.name;
               badgeContainer.appendChild(div);
             });
           }
