@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>404 - Page Not Found</title>
+  <link rel="stylesheet" href="style.css"> <!-- Use your default styles -->
+</head>
+<body>
+<div id="header-container"></div>
+<div id="wrap">
+<div id="sidebar-container"></div>
+
+    <main class="content">
+      <div class="error-container">
+        <h1>404</h1>
+        <p>This page does not exist.</p>
+        <p><a href="index.html">Return to Home</a></p>
+      </div>
+    </main>
+  </div>
+
+  <div id="footer-container"></div>
+    <script>
+  // URL to your public SiteSources folder
+ const BASE_URL = "http://192.168.87.101:3000/SiteSources/";
+
+  // Fetch sidebar HTML and inject
+  fetch(BASE_URL + "sidebar.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("sidebar-container").innerHTML = html;
+    })
+    .catch(err => console.error("Error loading sidebar:", err));
+  fetch(BASE_URL + "Header.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("header-container").innerHTML = html;
+    })
+    .catch(err => console.error("Error loading header:", err));
+  fetch(BASE_URL + "Footer.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("footer-container").innerHTML = html;
+    })
+    .catch(err => console.error("Error loading header:", err));
+</script>
+</body>
+</html>
