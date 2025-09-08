@@ -34,9 +34,9 @@
   
 </head>
 <body>
-<div id="header-container"></div>
+<!-- ~DivContainer:Header -->
 <div id="wrap">
-<div id="sidebar-container"></div>
+<!-- ~DivContainer:SidebarContainer -->
 
     <div class="content">
       <div class="box">
@@ -102,7 +102,7 @@
     <td>Custom Icon</td>
   </tr>
   <tr>
-    <td class="perk-col">Custom Hat on Purchase</td>
+    <td class="perk-col">Custom Hat on Purchase<sub>(4)</sub></td>
     <td class="no">No</td>
     <td class="yes">Yes</td>
     <td class="yes">Yes</td>
@@ -134,7 +134,7 @@
 
 
         <p style="margin-top:10px;">
-          <button onclick="alert('Mockup only — purchase not available')">Join Builder’s Club</button>
+          <button onclick="alert('Mockup only — purchase not available')">Join Builder’s Club<sub>(3)</sub></button>
         </p>
         <p>
           (1): Extra Atheris purchases are based on highest value.
@@ -142,34 +142,17 @@
         <p>
             (2): Some games may not allow this perk.
         </p>
+        <p>
+            (3): Purchases of first time buyers require to be set of what style of stripen you want.  Select "Daily" for Daily stripen, or "Full" for all of it at once.  Applies to current purchase.
+              You will be prompted upon first purchase, and can be changed in settings.
+        </p>
+        <p>
+            (4): Only applies to first time purchase
+        </p>
       </div>
     </div>
   </div>
 
-<div id="footer-container"></div>
-    <script>
-  // URL to your public SiteSources folder
- const BASE_URL = "http://192.168.87.101:3000/SiteSources/";
-
-  // Fetch sidebar HTML and inject
-  fetch(BASE_URL + "sidebar.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("sidebar-container").innerHTML = html;
-    })
-    .catch(err => console.error("Error loading sidebar:", err));
-  fetch(BASE_URL + "Header.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("header-container").innerHTML = html;
-    })
-    .catch(err => console.error("Error loading header:", err));
-  fetch(BASE_URL + "Footer.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("footer-container").innerHTML = html;
-    })
-    .catch(err => console.error("Error loading header:", err));
-</script>
+<!-- ~DivContainer:Footer -->
 </body>
 </html>
