@@ -8,12 +8,12 @@
 </head>
 
 <body>
-  <div id="header-container"></div>
+  <!-- ~DivContainer:Header -->
   <div id="wrap">
-    <div id="sidebar-container"></div>
+    <!-- ~DivContainer:SidebarContainer -->
 
 
-    <main class="content">
+    <main class="content" id="AccountProf">
       <!-- Profile header -->
       <div class="profile-header">
         <div class="profile-avatar">Avatar</div>
@@ -72,7 +72,7 @@
 
   </div>
 
-  <div id="footer-container"></div>
+  <!-- ~DivContainer:Footer -->
 
   <script>
     // URL to your public SiteSources folder
@@ -88,11 +88,12 @@
       "FC1": { class: "badge-bronfounder", name: "BRONZE FOUNDER" },
       "FF": { class: "badge-family", name: "FOUNDER FAMILY" },
       "CC-YT": { class: "badge-cc-yt", name: "CONTENT CREATOR" },
-      "CC-TW": { class: "badge-cc-tw", name: "CONTENT CREATOR" }
+      "CC-TW": { class: "badge-cc-tw", name: "CONTENT CREATOR" },
+      "LEGACY": { class:"badge-legacy", name: "LEGACY ACCOUNT"}
     };
     const profileClasses = {
       "Staff": "profile-info-staff",
-      "FF": "profile-info-staff",
+      "FF": "profile-info-ff",
       "CC-YT": "profile-info-cc-yt",
       "CC-TW": "profile-info-cc-tw",
       "FC3": "profile-info-gf",
@@ -100,32 +101,16 @@
       "FC1": "profile-info-bf"
     };
     const profilePriority = ["Staff", "FF", "CC-YT", "CC-TW", "FC3", "FC2", "FC1"];
+    const ErrorHTML = '<div class="error-container"><h1>404</h1><p>This profile page does not exist.</p><p><a href="index.html">Return to Home</a></p></div></main>'
     console.log("ExtraData is:", window.EXTRA_DATA);
 
-    // Fetch sidebar HTML and inject
-    fetch(BASE_URL + "sidebar.html")
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById("sidebar-container").innerHTML = html;
-      })
-      .catch(err => console.error("Error loading sidebar:", err));
-    fetch(BASE_URL + "Header.html")
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById("header-container").innerHTML = html;
-      })
-      .catch(err => console.error("Error loading header:", err));
-    fetch(BASE_URL + "Footer.html")
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById("footer-container").innerHTML = html;
-      })
-      .catch(err => console.error("Error loading header:", err));
-    if (window.EXTRA_DATA !== "ND") {
-      let ED = window.EXTRA_DATA;
-      let parts = ED.split(",");
-      let PD = parts[0];
-      PD = PD.split("=")[1];
+    // Fetch Profile HTML
+    let ED = window.EXTRA_DATA;
+    let PD = window.EXTRA_DATA?.split(",")[0]?.split("=")[1] ?? "ND";
+    console.log(PD)
+    if (PD === "ND") {
+      document.getElementById("AccountProf").innerHTML = ErrorHTML
+    } else {
       fetch(PBASE_URL + PD + ".json")
         .then(res => {
           if (!res.ok) throw new Error("Failure to load JSON.");
@@ -156,7 +141,10 @@
             });
           }
         })
-
+        .catch(err => {
+          document.getElementById("AccountProf").innerHTML = ErrorHTML
+          console.log("Error detected: "+err)
+        })
     }
   </script>
 </body>
