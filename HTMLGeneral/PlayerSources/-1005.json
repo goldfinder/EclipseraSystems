@@ -1,6 +1,7 @@
 {
-    "Badges": ["Contributor","CC-TW"]
+    "Badges": ["Contributor","BC2"]
     ,"Name": "TEST5"
     ,"AboutMe": "Debug account.  If this exists past release, notify Gold3nF1r3."
-    ,"CreationDate": "2025:08:19"
+    ,"LoginType": "DevelopmentDebug"
+    ,"CreationDate": "2025:08:23"
 }
