@@ -17,12 +17,17 @@
       <!-- Profile header -->
       <div class="profile-header">
         <div class="profile-avatar">Avatar</div>
-        <div class="profile-info" id="PlayerProfile">
-          <h1 id="PlayerName">ClassicUser123</h1>
-          <div class="meta" id="CreationDate">Member since: March 2011</div>
+        <div class="{PFINFO}" id="PlayerProfile">
+          <h1 id="PlayerName">{USR-PRF}</h1>
+          <div class="meta" id="CreationDate">Member Since: {JOIN-PRF}</div>
           <div class="badges" id="BadgeCont">
-            <div class="badge">OBC</div>
-            <div class="badge">Founder</div>
+            <!-- ~BadgeService:Contributor -->
+            <!-- ~BadgeService:BadgeStaff -->
+            <!-- ~BadgeService:StaffPos -->
+            <!-- ~BadgeService:Legacy -->
+            <!-- ~BadgeService:BC -->
+            <!-- ~BadgeService:FNDRCLB -->
+            <!-- ~BadgeService:FF -->
           </div>
         </div>
       </div>
@@ -31,17 +36,29 @@
       <div class="profile-stats">
         <div class="stat-box">
           <h3>Friends</h3>
-          <p>52</p>
+          <p>{FRDCNT-PRF}</p>
         </div>
         <div class="stat-box">
           <h3>Groups</h3>
-          <p>8</p>
+          <p>{GRPCNT-PRF}</p>
+        </div>
+      </div>
+
+      <!-- Profile Currency -->
+      <div class="profile-stats">
+        <div class="stat-box">
+          <h3>Amethyst (Free)</h3>
+          <p>{AMY-PRF}</p>
+        </div>
+        <div class="stat-box">
+          <h3>Solins (Event)</h3>
+          <p>{SOL-PRF}</p>
         </div>
       </div>
 
       <!-- Optional profile description -->
       <div class="profile-desc" id="AboutMe">
-        <strong>About Me:</strong> Just a classic ROBLOX fan who loves building games and exploring new worlds.
+        <strong>About Me:</strong> {ABTME-PRF}
       </div>
       <!-- Groups section -->
       <div class="profile-groups">
@@ -74,79 +91,6 @@
 
   <!-- ~DivContainer:Footer -->
 
-  <script>
-    // URL to your public SiteSources folder
-    const BASE_URL = "http://192.168.87.101:3000/SiteSources/";
-    const PBASE_URL = "http://192.168.87.101:3000/PlayerSources/";
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const badgeMap = {
-      "BC3": { class: "badge-obc", name: "OBC" },
-      "BC2": { class: "badge-tbc", name: "TBC" },
-      "BC1": { class: "badge-bc", name: "BC" },
-      "FC3": { class: "badge-goldfounder", name: "GOLD FOUNDER" },
-      "FC2": { class: "badge-silvfounder", name: "SILVER FOUNDER" },
-      "FC1": { class: "badge-bronfounder", name: "BRONZE FOUNDER" },
-      "FF": { class: "badge-family", name: "FOUNDER FAMILY" },
-      "CC-YT": { class: "badge-cc-yt", name: "CONTENT CREATOR" },
-      "CC-TW": { class: "badge-cc-tw", name: "CONTENT CREATOR" },
-      "LEGACY": { class:"badge-legacy", name: "LEGACY ACCOUNT"}
-    };
-    const profileClasses = {
-      "Staff": "profile-info-staff",
-      "FF": "profile-info-ff",
-      "CC-YT": "profile-info-cc-yt",
-      "CC-TW": "profile-info-cc-tw",
-      "FC3": "profile-info-gf",
-      "FC2": "profile-info-sf",
-      "FC1": "profile-info-bf"
-    };
-    const profilePriority = ["Staff", "FF", "CC-YT", "CC-TW", "FC3", "FC2", "FC1"];
-    const ErrorHTML = '<div class="error-container"><h1>404</h1><p>This profile page does not exist.</p><p><a href="index.html">Return to Home</a></p></div></main>'
-    console.log("ExtraData is:", window.EXTRA_DATA);
-
-    // Fetch Profile HTML
-    let ED = window.EXTRA_DATA;
-    let PD = window.EXTRA_DATA?.split(",")[0]?.split("=")[1] ?? "ND";
-    console.log(PD)
-    if (PD === "ND") {
-      document.getElementById("AccountProf").innerHTML = ErrorHTML
-    } else {
-      fetch(PBASE_URL + PD + ".json")
-        .then(res => {
-          if (!res.ok) throw new Error("Failure to load JSON.");
-          return res.json();
-        })
-        .then(PDAT => {
-          console.log("PDAT: ", PDAT);
-          document.getElementById("PlayerName").innerText = PDAT.Name
-          let creationdate = PDAT.CreationDate.split(":")
-          let month = months[parseInt(creationdate[1], 10) - 1]
-          let year = creationdate[0]
-          let day = creationdate[2]
-          document.getElementById("CreationDate").innerText = "Member Since: " + month + " " + day + ", " + year
-          document.getElementById("AboutMe").innerHTML = "<strong>About me:</strong> " + PDAT.AboutMe
-
-          let badgeContainer = document.getElementById("BadgeCont");
-          badgeContainer.innerHTML = ""; // clear old badges
-          if (PDAT.Badges && PDAT.Badges.length > 0) {
-            let PCON = document.getElementById("PlayerProfile")
-            const topBadge = profilePriority.find(b => PDAT.Badges.includes(b));
-            document.getElementById("PlayerProfile").className = topBadge ? profileClasses[topBadge] : "profile-info";
-            PDAT.Badges.forEach(badge => {
-              const div = document.createElement("div");
-              const mapping = badgeMap[badge] || { class: "badge", name: badge };
-              div.className = mapping.class;
-              div.innerText = mapping.name;
-              badgeContainer.appendChild(div);
-            });
-          }
-        })
-        .catch(err => {
-          document.getElementById("AccountProf").innerHTML = ErrorHTML
-          console.log("Error detected: "+err)
-        })
-    }
-  </script>
 </body>
 
 </html>
