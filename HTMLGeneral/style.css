@@ -129,6 +129,17 @@ body {
   font-weight: bold;
 }
 
+.badge-mbc {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #17045c;
+  color: white;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
 .badge-obc {
   display: inline-block;
   padding: 4px 8px;
