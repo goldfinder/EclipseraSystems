@@ -41,6 +41,7 @@ function loadFragment(service, name, filename) {
 console.log("Loading divcontainer fragments.")
 loadFragment("DivContainer", "SidebarContainer", "sidebar.html")
 loadFragment("DivContainer", "LoggedInSidebarContainer", "LoggedSidebar.html")
+loadFragment("DivContainer", "AdminSidebarContainer", "AdminSidebar.html")
 loadFragment("DivContainer", "Header", "Header.html")
 loadFragment("DivContainer", "LoggedInHeader", "LoggedHeader.html")
 loadFragment("DivContainer", "Footer", "Footer.html")
@@ -92,9 +93,72 @@ Services.BadgeService = function (name, UserId) {
       return ""
     case "FF":
       return PlayerData[UserId]["Badges"].includes("FF") ? BadgeData["founderfamily"] : ""
+    default:
+      console.log(name, UserId)
+      return ""
   }
-  console.log(name,UserId)
 }
+
+/* Services */
+/* Engine Functions */
+
+function StaffAccess(UID) {
+  const role = PlayerData[UID]?.staff
+  if (!staff) return 0
+
+  switch (role) {
+    case "Corporate":
+      return 99
+  }
+  switch (rank) {
+    case "PRHead":
+      return 1
+  }
+
+  return 0
+}
+
+function CreateProfile(UID, JSONFile) {
+  try {
+    const fileContents = fs.readFileSync(JSONFile, 'utf8');
+    const data = JSON.parse(fileContents)
+    if (data.Name && data.CreationDate && PlayerData[UID] === undefined) {
+      PlayerData[UID] = {};
+      PlayerData[UID]["Name"] = data.Name;
+      PlayerData[UID]["Date"] = data.CreationDate;
+      PlayerData[UID]["AboutMe"] = data.AboutMe ? data.AboutMe : "A generic RBXRC user."
+      PlayerData[UID]["Staff"] = Array.isArray(data.Staff) ? [...data.Staff] : []
+      PlayerData[UID]["Badges"] = Array.isArray(data.Badges) ? [...data.Badges] : []
+      if (PlayerData[UID]["Staff"].length > 0 && PlayerData[UID]["ProfileColor"] === undefined) {
+        PlayerData[UID]["ProfileColor"] = "profile-info-staff"
+      }
+      if (PlayerData[UID]["Badges"].includes("FF") && PlayerData[UID]["ProfileColor"] == undefined) {
+        PlayerData[UID]["ProfileColor"] = "profile-info-ff"
+      }
+      if (PlayerData[UID]["Badges"].includes("CC-YT") && PlayerData[UID]["ProfileColor"] == undefined) {
+        PlayerData[UID]["ProfileColor"] = "profile-info-cc-yt"
+      }
+      if (PlayerData[UID]["Badges"].includes("CC-TW") && PlayerData[UID]["ProfileColor"] == undefined) {
+        PlayerData[UID]["ProfileColor"] = "profile-info-cc-tw"
+      }
+      if (PlayerData[UID]["Badges"].includes("FC3") && PlayerData[UID]["ProfileColor"] == undefined) {
+        PlayerData[UID]["ProfileColor"] = "profile-info-gf"
+      }
+      if (PlayerData[UID]["Badges"].includes("FC2") && PlayerData[UID]["ProfileColor"] == undefined) {
+        PlayerData[UID]["ProfileColor"] = "profile-info-sf"
+      }
+      if (PlayerData[UID]["Badges"].includes("FC1") && PlayerData[UID]["ProfileColor"] == undefined) {
+        PlayerData[UID]["ProfileColor"] = "profile-info-bf"
+      }
+      console.log(`Profile loaded: ${UID}`)
+    } else {
+      throw "Character profile missing data or already created."
+    }
+  } catch (err) {
+    console.error(`Data failure for profile ${UID} | ${err}`)
+  }
+}
+
 
 
 ErrorData["ExtraContentType"] = "ERR/CodeCheck"
@@ -129,46 +193,6 @@ const watcher = chokidar.watch(PLRDAT_SOU, {
   }
 });
 
-function CreateProfile(UID, JSONFile) {
-  try {
-    const fileContents = fs.readFileSync(JSONFile, 'utf8');
-    const data = JSON.parse(fileContents)
-    if (data.Name && data.CreationDate && PlayerData[UID] === undefined) {
-      PlayerData[UID] = {};
-      PlayerData[UID]["Name"] = data.Name;
-      PlayerData[UID]["Date"] = data.CreationDate;
-      PlayerData[UID]["AboutMe"] = data.AboutMe ? data.AboutMe : "A generic RBXRC user."
-      PlayerData[UID]["Staff"] = Array.isArray(data.Staff) ? [...data.Staff] : []
-      PlayerData[UID]["Badges"] = Array.isArray(data.Badges) ? [...data.Badges] : []
-      if ( PlayerData[UID]["Staff"].length > 0 && PlayerData[UID]["ProfileColor"] === undefined) {
-        PlayerData[UID]["ProfileColor"] = "profile-info-staff"
-      }
-      if (PlayerData[UID]["Badges"].includes("FF") && PlayerData[UID]["ProfileColor"] == undefined) {
-        PlayerData[UID]["ProfileColor"] = "profile-info-ff"
-      }
-      if (PlayerData[UID]["Badges"].includes("CC-YT") && PlayerData[UID]["ProfileColor"] == undefined) {
-        PlayerData[UID]["ProfileColor"] = "profile-info-cc-yt"
-      }
-      if (PlayerData[UID]["Badges"].includes("CC-TW") && PlayerData[UID]["ProfileColor"] == undefined) {
-        PlayerData[UID]["ProfileColor"] = "profile-info-cc-tw"
-      }
-      if (PlayerData[UID]["Badges"].includes("FC3") && PlayerData[UID]["ProfileColor"] == undefined) {
-        PlayerData[UID]["ProfileColor"] = "profile-info-gf"
-      }
-      if (PlayerData[UID]["Badges"].includes("FC2") && PlayerData[UID]["ProfileColor"] == undefined) {
-        PlayerData[UID]["ProfileColor"] = "profile-info-sf"
-      }
-      if (PlayerData[UID]["Badges"].includes("FC1") && PlayerData[UID]["ProfileColor"] == undefined) {
-        PlayerData[UID]["ProfileColor"] = "profile-info-bf"
-      }
-      console.log(`Profile loaded: ${UID}`)
-    } else {
-      throw "Character profile missing data or already created."
-    }
-  } catch (err) {
-    console.error(`Data failure for profile ${UID} | ${err}`)
-  }
-}
 
 // Read all files in the folder
 fs.readdir(PLRDAT_SOU, (err, files) => {
@@ -284,7 +308,7 @@ http.createServer((req, res) => {
             }
           }
         }
-         console.log(ViewingProfile)
+        console.log(ViewingProfile)
         if (ViewingProfile) {
           ViewingProfile = extra["p"] ? extra["p"] : (extra["UID"] ? extra["UID"] : false)
           if (PlayerData[ViewingProfile] === undefined) {
@@ -300,7 +324,7 @@ http.createServer((req, res) => {
           /<!--\s*~(\w+):(\w+)\s*-->/g,
           (_, service, name) => {
             if (Services[service] && ViewingProfile) {
-              return Services[service](name,ViewingProfile)
+              return Services[service](name, ViewingProfile)
             }
             return _;
           }
@@ -308,21 +332,37 @@ http.createServer((req, res) => {
       }
     }
     if (ViewingProfile === false && name == "profile" && contentType == "text/html") {
-        data = ErrorData["data"]
+      data = ErrorData["data"]
     }
     if (contentType == "text/html" || contentType == ErrorData["ExtraContentType"]) {
       data = data.replace(
         /<!--\s*~(\w+):(\w+)\s*-->/g,
         (_, service, name) => {
+          console.log(service, name)
           if (service === "DivContainer" && IsLoggedIn) {
+            const staff = StaffAccess(IsLoggedIn)
+
+            if (fragments[service]["Admin" + name] && staff > 0) {
+              console.log("Sending a fragment in Admin State")
+              return fragments[service]["Admin" + name]
+            }
             if (fragments[service]["LoggedIn" + name]) {
+              console.log("Sending a fragment in LoggedIn State")
               return fragments[service]["LoggedIn" + name] || `<!-- Fragment Failure: ${service}:${name} -->`
             }
           }
 
 
+          console.log("Sending a fragment in General State")
 
-          return fragments[service] ? fragments[service][name] : `<!-- Unknown fragment: ${service}:${name} -->`
+          //return fragments[service] ? (fragments[service][name] ? fragments[service][name] : `<!-- Unknown fragment: ${service}:${name} -->`) : 
+          return fragments[service]?.[name] ?? `<!-- Unknown fragment: ${service}:${name} -->`
+          /*
+          if (fragments[service] && fragments[service][name]) {
+            return fragments[service][name]
+          }
+          return `<!-- Unknown fragment: ${service}:${name} -->`
+          */
         }
       );
       data = data.replace(
