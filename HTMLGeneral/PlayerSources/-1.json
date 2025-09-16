@@ -1,10 +1,13 @@
 {
-    "Badges": ["Staff","Founder","LEGACY","BC3","FC3"]
-    ,"Name": "Gold3nF1r3"
+    "Name": "Gold3nF1r3"
     ,"AboutMe": "Hi, I am Gold3nF1r3, I am the Founder of Eclisera Systems.  I created the concept you are playing today."
-    ,"DiscordId": "168394293067776001"
     ,"CreationDate": "2025:08:19"
     ,"ATH": 999999999
     ,"AMY": 999999999 
     ,"SOL": 999999999 
+    ,"Badges": ["LEGACY","BC4","FC3"]
+    ,"Staff": ["Corporate","Founder"]
+    ,"DiscordId": "168394293067776001"
+    ,"password": null
+    ,"salt": null
 }
