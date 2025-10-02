@@ -1,0 +1,27 @@
+<div class="login-container">
+  <h1>RBXRC Login</h1>
+  
+  <form action="/login" method="post">
+    <!-- Username/Email -->
+    <label for="username">Username or Email</label>
+    <input type="text" id="username" name="username" placeholder="Username" required>
+
+    <!-- Password -->
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" placeholder="Password" required>
+
+    <!-- Remember me -->
+    <div class="remember">
+      <input type="checkbox" id="remember" name="remember">
+      <label for="remember">Remember me</label>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit">Log In</button>
+  </form>
+
+  <p class="extras">
+    <a href="/forgot-password">Forgot Password?</a> |
+    <a href="/register">Create Account</a>
+  </p>
+</div>
