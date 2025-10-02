@@ -6,7 +6,8 @@ const os = require("os");
 const path = require("path");
 
 //Server Vars
-const PORT = 3000
+const PORT      = 3000
+let Debugging   = true
 
 function getLocalIP() {
   const interfaces = os.networkInterfaces();
@@ -26,6 +27,9 @@ let Cores = {}
 function ParseCore(coreFile,state) {
     //console.warn("In development.")
     if (!state || !coreFile) {
+        if (Debugging) {
+            console.log(`Cannot create core for '${coreFile}'. (Err.InvalidVariables)`)
+        }
         return
     }
     const FileName = coreFile.toLowerCase()
@@ -33,19 +37,25 @@ function ParseCore(coreFile,state) {
         case("Add"):
             let CoreName = coreFile.split(" ",1)[0].toLowerCase()
             if (CoreName.startsWith("node_") || CoreName.startsWith("core_")) {
+                if (Debugging) {
+                    console.log(`Cannot create core for '${coreFile}'. (Err.NameInvalid)`)
+                }
                 break
             }
             let FoundServer = false
             const fileloc = path.join(__dirname,coreFile,"server.js")
             if (fs.existsSync(fileloc)) {
+                if (Debugging) {
+                    console.log(`Found server for '${coreFile}'. (Information)`)
+                }
                 FoundServer = true
             }
             Cores[CoreName] = {
                 IsAvaliable: FoundServer
                 ,File: fileloc
             }
-            if (FoundServer) {
-                console.log(`Core added: ${CoreName}`)
+            if (FoundServer && Debugging) {
+                console.log(`Created server for '${coreFile}' with states: 'IsAvaliable ${IsAvaliable}, File ${fileloc}'. (Success)`)
             }
             break
     }
@@ -56,6 +66,8 @@ fs.readdirSync(__dirname).forEach(file => {
     const FileType = fs.lstatSync(fp)
     if (FileType.isDirectory()) {
         ParseCore(file,"Add")
+    } else if (Debugging) {
+        console.log(`Cannot create core for '${file}'.  (Err.NotDirectory)`)
     }
 })
 
@@ -94,26 +106,37 @@ const server = http.createServer((req, res) => {
     console.log("Sub path:", SubPath);
     console.log(CoreSite == "core")
     if (Cores[CoreSite] && Cores[CoreSite].IsAvaliable) {
-        console.log("code Parsed properly :)")
+        if (Debugging) {
+            console.log("Code for coresite parsed correctly. (Success)")
+        }
         res.writeHead(200);
         res.end(`Placeholder (${CoreSite})`);
     } else if (Cores[CoreSite] && !Cores[CoreSite].IsAvaliable) {
+        if (Debugging) {
+            console.log("Code for coresite failed. (Err.NoCore)")
+        }
         res.writeHead("503")
         res.end("File unavaliable.")
     } else if (CoreSite == "favicon.ico") {
         res.writeHead(404)
         res.end()
     } else {
+        if (Debugging) {
+            console.log(`User attempted to load bad core.  '${CoreSite}' (Err.NoCore)`)
+        }
         res.writeHead(400);
         res.end("Invalid CORE state.");
     }
 })
 
 server.listen(PORT, () => {
-    console.log(`Server running on:`);
-    console.log(` - Local: localhost:${PORT}`);
-    if (serverIP !== "127.0.0.1") {
-        console.log(` - LAN:   ${serverIP}:${PORT}`);
+    if (Debugging) {
+        console.log("-- DEBUGGING | NETWORKING --")
+        console.log(`Server running on:`);
+        console.log(` - Local: localhost:${PORT}`);
+        if (serverIP !== "127.0.0.1") {
+            console.log(` - LAN:   ${serverIP}:${PORT}`);
+        }
     }
 });
 
@@ -129,9 +152,24 @@ process.stdin.on("data", (key) => {
             process.stdin.pause()
             process.stdin.removeAllListeners("data")
             //final
-            console.log("Succeeded in closing.")
+            if (Debugging) {
+                console.log("Succeeded in closing.")
+            }
         } catch(err) {
-            console.log(`Failed to close.  (${err})`)
+            if (Debugging) {
+                console.log(`${err}`)
+            }
+            console.log(`Failed to close server.`)
+        }
+    }
+    if (key == "d" && server.listening) {
+        console.log("Toggling Debugging mode...")
+        Debugging = !Debugging
+        switch (Debugging) {
+            case(true):
+                console.log("Toggled on")
+            case(false):
+                console.log("Toggled Off")
         }
     }
 })
