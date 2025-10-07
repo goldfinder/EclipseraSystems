@@ -4,7 +4,6 @@ const fs = require("fs");
 const chokidar = require("chokidar")
 const os = require("os");
 const path = require("path");
-const Watching={}
 
 //Server Vars
 const PORT      = 3000
@@ -21,41 +20,6 @@ function getLocalIP() {
     }
   }
   return "127.0.0.1"; // fallback
-}
-
-//Watcher system
-function addWatcher(name, dirPath) {
-  if (Watching[name]) {
-    console.log(`[WARN] Watcher "${name}" already exists.`);
-    return;
-  }
-  const watcher = chokidar.watch(dirPath, {
-    ignoreInitial: true,
-    depth: 0
-  });
-  watcher.on("all", (event, filePath) => {
-    console.log(`[${name}] ${event.toUpperCase()}: ${filePath}`);
-  });
-  watcher.on("error", (err) => {
-    console.error(`[${name}] ERROR:`, err);
-  });
-  Watching[name] = watcher;
-  console.log(`[INFO] Watching "${name}" on ${dirPath}`);
-}
-
-function removeWatcher(name) {
-  const watcher = Watching[name];
-  if (!watcher) {
-    console.log(`[WARN] Watcher "${name}" not found.`);
-    return;
-  }
-  watcher.close();
-  delete Watching[name];
-  console.log(`[INFO] Watcher "${name}" stopped and removed.`);
-}
-
-function listWatchers() {
-  console.log("Currently watching:", Object.keys(Watching));
 }
 
 //Parse Cores
