@@ -4,6 +4,7 @@ const fs = require("fs");
 const chokidar = require("chokidar")
 const os = require("os");
 const path = require("path");
+const Watching={}
 
 //Server Vars
 const PORT      = 3000
@@ -22,23 +23,66 @@ function getLocalIP() {
   return "127.0.0.1"; // fallback
 }
 
+//Watcher system
+function addWatcher(name, dirPath) {
+  if (Watching[name]) {
+    console.log(`[WARN] Watcher "${name}" already exists.`);
+    return;
+  }
+  const watcher = chokidar.watch(dirPath, {
+    ignoreInitial: true,
+    depth: 0
+  });
+  watcher.on("all", (event, filePath) => {
+    console.log(`[${name}] ${event.toUpperCase()}: ${filePath}`);
+  });
+  watcher.on("error", (err) => {
+    console.error(`[${name}] ERROR:`, err);
+  });
+  Watching[name] = watcher;
+  console.log(`[INFO] Watching "${name}" on ${dirPath}`);
+}
+
+function removeWatcher(name) {
+  const watcher = Watching[name];
+  if (!watcher) {
+    console.log(`[WARN] Watcher "${name}" not found.`);
+    return;
+  }
+  watcher.close();
+  delete Watching[name];
+  console.log(`[INFO] Watcher "${name}" stopped and removed.`);
+}
+
+function listWatchers() {
+  console.log("Currently watching:", Object.keys(Watching));
+}
+
 //Parse Cores
 let Cores = {}
 function ParseCore(coreFile,state) {
-    //console.warn("In development.")
     if (!state || !coreFile) {
         if (Debugging) {
             console.log(`Cannot create core for '${coreFile}'. (Err.InvalidVariables)`)
         }
         return
     }
-    const FileName = coreFile.toLowerCase()
-    switch(state) {
-        case("Add"):
-            let CoreName = coreFile.split(" ",1)[0].toLowerCase()
-            if (CoreName.startsWith("node_") || CoreName.startsWith("core_")) {
+    const CoreName = path.basename(coreFile).split(" ",1)[0].toLowerCase();
+    switch(state.toLowerCase()) {
+        case("add"):
+            if (Cores[CoreName]) {
                 if (Debugging) {
-                    console.log(`Cannot create core for '${coreFile}'. (Err.NameInvalid)`)
+                    console.log(`Cannot create core for '${coreFile} | ${CoreName}'. (Err.AlreadyExists)`)
+                    console.log("")
+                    console.log("")
+                }
+                break
+            }
+            if (CoreName.startsWith("node_") || CoreName.startsWith("core_") || CoreName.startsWith("new")) {
+                if (Debugging) {
+                    console.log(`Cannot create core for '${coreFile} | ${CoreName}'. (Err.NameInvalid)`)
+                    console.log("")
+                    console.log("")
                 }
                 break
             }
@@ -46,7 +90,7 @@ function ParseCore(coreFile,state) {
             const fileloc = path.join(__dirname,coreFile,"server.js")
             if (fs.existsSync(fileloc)) {
                 if (Debugging) {
-                    console.log(`Found server for '${coreFile}'. (Information)`)
+                    console.log(`Found server for '${coreFile} | ${CoreName}'. (Information)`)
                 }
                 FoundServer = true
             }
@@ -54,24 +98,27 @@ function ParseCore(coreFile,state) {
                 IsAvaliable: FoundServer
                 ,File: fileloc
             }
-            if (FoundServer && Debugging) {
-                console.log(`Created server for '${coreFile}' with states: 'IsAvaliable ${IsAvaliable}, File ${fileloc}'. (Success)`)
+            if (Debugging) {
+                console.log(`Created server for '${coreFile} | ${CoreName}' with states: 'IsAvaliable ${FoundServer}, File ${fileloc}'. (Success)`)
+                console.log("")
+                console.log("")
             }
             break
     }
 }
 
-fs.readdirSync(__dirname).forEach(file => {
-    const fp = path.join(__dirname,file)
-    const FileType = fs.lstatSync(fp)
-    if (FileType.isDirectory()) {
-        ParseCore(file,"Add")
-    } else if (Debugging) {
-        console.log(`Cannot create core for '${file}'.  (Err.NotDirectory)`)
-    }
-})
+let ChokidarFile = (__dirname).replace(/\//g, "\\");
 
-ParseCore()
+const CD = chokidar.watch(ChokidarFile, { depth: 0 });
+console.log(`watching path: ${ChokidarFile}`)
+CD.on("all", (event, f) => {
+  console.log(`[${event}] ${f}`);
+  if (event == "addDir") {
+    ParseCore(f,"add")
+  } else if (event == "unlinkDir") {
+
+  }
+});
 
 const serverIP = getLocalIP();
 const server = http.createServer((req, res) => {
@@ -115,7 +162,7 @@ const server = http.createServer((req, res) => {
         if (Debugging) {
             console.log("Code for coresite failed. (Err.NoCore)")
         }
-        res.writeHead("503")
+        res.writeHead(503)
         res.end("File unavaliable.")
     } else if (CoreSite == "favicon.ico") {
         res.writeHead(404)
@@ -127,6 +174,8 @@ const server = http.createServer((req, res) => {
         res.writeHead(400);
         res.end("Invalid CORE state.");
     }
+    console.log("")
+    console.log("")
 })
 
 server.listen(PORT, () => {
@@ -137,6 +186,8 @@ server.listen(PORT, () => {
         if (serverIP !== "127.0.0.1") {
             console.log(` - LAN:   ${serverIP}:${PORT}`);
         }
+        console.log("")
+        console.log("")
     }
 });
 
@@ -151,6 +202,7 @@ process.stdin.on("data", (key) => {
             server.close()
             process.stdin.pause()
             process.stdin.removeAllListeners("data")
+            CD.close()
             //final
             if (Debugging) {
                 console.log("Succeeded in closing.")
@@ -167,7 +219,7 @@ process.stdin.on("data", (key) => {
         Debugging = !Debugging
         switch (Debugging) {
             case(true):
-                console.log("Toggled on")
+                console.log("Toggled On")
             case(false):
                 console.log("Toggled Off")
         }
