@@ -136,8 +136,10 @@ const server = http.createServer((req, res) => {
         if (Debugging) {
             console.log("Code for coresite parsed correctly. (Success)")
         }
-        res.writeHead(200);
-        res.end(`Placeholder (${CoreSite})`);
+        const rq = require(Cores[CoreSite].File)
+        const result = rq.ParseHTML(SubPath)
+        res.writeHead(result.Status);
+        res.end(result.HTML);
     } else if (Cores[CoreSite] && !Cores[CoreSite].IsAvaliable) {
         if (Debugging) {
             console.log("Code for coresite failed. (Err.NoCore)")
