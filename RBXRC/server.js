@@ -1,7 +1,12 @@
 const path = require("path");
 const fs = require("fs");
+function DebugSend(ShowDebug,str) {
+    if (ShowDebug) {
+        console.log(`[DEBUG] | [RBXRC Server] | ${str}`)
+    }
+}
 module.exports = {
-    GetFile: (SubPath) => {
+    GetFile: (ShowDebug, SubPath) => {
         const prt = path.join(__dirname, "public", SubPath)
 
         return new Promise((resolve) => {
@@ -16,7 +21,7 @@ module.exports = {
             })
         })
     },
-    ParseHTML: (SubPath, query) => {
+    ParseHTML: (ShowDebug, SubPath, query) => {
         //Early Registries
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         const PlayerData = {};
@@ -29,24 +34,24 @@ module.exports = {
         const PLRDAT_SOU = path.join(PUBLIC_DIR, "PlayerSources")
         const BADGES_SOU = path.join(PUBLIC_DIR, "BadgeData")
         function loadFragment(service, name, filename) {
-            console.log(`Loading service ${service}:${name}`)
+            DebugSend(ShowDebug,`Loading service ${service}:${name}`)
             const fragPath = path.join(SITE_SOURS, filename);
             try {
                 const content = fs.readFileSync(fragPath, "utf8");
                 if (!fragments[service]) fragments[service] = {};
                 fragments[service][name] = content;
-                console.log(`Fragment Loaded: ${service}:${name}`)
+                 DebugSend(ShowDebug,`Fragment Loaded: ${service}:${name}`)
             } catch (err) {
                 if (!fragments[service]) fragments[service] = {};
                 fragments[service][name] = `<!-- Fragment Load Fail: ${service}:${name} -->`;
-                console.log(`Fragment Failure: ${service}:${name} | ${err}`)
+                DebugSend(ShowDebug,`Fragment Failure: ${service}:${name} | ${err}`)
             }
         }
 
         // Read all files in the folder
         fs.readdir(PLRDAT_SOU, (err, files) => {
             if (err) {
-                return console.error('Error reading player folder:', err);
+                return DebugSend(ShowDebug,'Error reading player folder:', err);
             }
 
             files.forEach(file => {
@@ -57,12 +62,12 @@ module.exports = {
                 }
             });
 
-            console.log('PlayerData loaded');
+            DebugSend(ShowDebug,'PlayerData loaded');
         });
 
         fs.readdir(BADGES_SOU, (err, files) => {
             if (err) {
-                return console.error('Error reading player folder:', err);
+                return DebugSend(ShowDebug,'Error reading player folder:', err);
             }
 
             files.forEach(file => {
@@ -70,7 +75,7 @@ module.exports = {
                     const filePath = path.join(BADGES_SOU, file);
                     const filedat = fs.readFileSync(filePath, 'utf8');
                     const PARSE = path.parse(file)
-                    console.log(PARSE)
+                    DebugSend(ShowDebug,PARSE)
                     let EXT = PARSE.ext
                     EXT = EXT.slice(1)
                     let NAME = PARSE.name
@@ -84,13 +89,12 @@ module.exports = {
                     };
                     const BadgeName = `${NAME}.${typeMap[EXT] || EXT}`;
                     BadgeData[BadgeName] = filedat
-                    console.log(`Badge '${BadgeName}' loaded`)
+                    DebugSend(ShowDebug,`Badge '${BadgeName}' loaded`)
                 } catch (err) {
-                    console.log("Failed to load badge.", err)
+                    DebugSend(ShowDebug,"Failed to load badge.", err)
                 }
             });
-
-            console.log('Badges loaded');
+            DebugSend(ShowDebug,'Badges loaded');
         });
 
         function CreateProfile(UID, JSONFile) {
@@ -98,10 +102,10 @@ module.exports = {
                 const fileContents = fs.readFileSync(JSONFile, 'utf8');
                 const data = JSON.parse(fileContents)
                 if (data.Name && data.CreationDate && PlayerData[UID] === undefined) {
-                    console.log(data.SOL ?? 0, data.AMY ?? 0, data.ATH ?? 0)
+                    DebugSend(ShowDebug,data.SOL ?? 0, data.AMY ?? 0, data.ATH ?? 0)
                     if (Array.isArray(data.Staff)) {
-                        console.log(data.Staff)
-                        console.log(data.Staff[1])
+                        DebugSend(ShowDebug,data.Staff)
+                        DebugSend(ShowDebug,data.Staff[1])
                     }
                     PlayerData[UID] = {
                         "Name": data.Name,
@@ -129,54 +133,45 @@ module.exports = {
                         }
                     }
                     if (Array.isArray(data.Staff) && data.Staff[1] === "Founder" && PlayerData[UID]["ProfileColor"] === undefined) {
-                        console.log("10")
                         PlayerData[UID]["ProfileColor"] = "profile-info-fndr"
                     }
                     if (Array.isArray(data.Staff) && data.Staff[1] === "CFounder" && PlayerData[UID]["ProfileColor"] === undefined) {
-                        console.log("9")
                         PlayerData[UID]["ProfileColor"] = "profile-info-cfndr"
                     }
                     if (Array.isArray(data.Staff) && data.Staff.length > 0 && PlayerData[UID]["ProfileColor"] === undefined && PlayerData[UID]["Public"]["Staff"][1] !== "TMP") {
-                        console.log("8")
                         PlayerData[UID]["ProfileColor"] = "profile-info-staff"
                     }
                     if (data["Badges"].includes("FF") && PlayerData[UID]["ProfileColor"] === undefined) {
-                        console.log("7")
                         PlayerData[UID]["ProfileColor"] = "profile-info-ff"
                     }
                     if (data["Badges"].includes("CC-YT") && PlayerData[UID]["ProfileColor"] === undefined) {
-                        console.log("6")
                         PlayerData[UID]["ProfileColor"] = "profile-info-cc-yt"
                     }
                     if (data["Badges"].includes("CC-TW") && PlayerData[UID]["ProfileColor"] === undefined) {
-                        console.log("5")
                         PlayerData[UID]["ProfileColor"] = "profile-info-cc-tw"
                     }
                     if (data["Badges"].includes("FC3") && PlayerData[UID]["ProfileColor"] === undefined) {
-                        console.log("4")
                         PlayerData[UID]["ProfileColor"] = "profile-info-gf"
                     }
                     if (data["Badges"].includes("FC2") && PlayerData[UID]["ProfileColor"] === undefined) {
-                        console.log("3")
                         PlayerData[UID]["ProfileColor"] = "profile-info-sf"
                     }
                     if (data["Badges"].includes("FC1") && PlayerData[UID]["ProfileColor"] === undefined) {
-                        console.log("2")
                         PlayerData[UID]["ProfileColor"] = "profile-info-bf"
                     }
-                    console.log(`Profile loaded: ${UID}`)
+                    DebugSend(ShowDebug,`Profile loaded: ${UID}`)
                 } else {
                     throw "Character profile missing data or already created."
                 }
             } catch (err) {
-                console.error(`Data failure for profile ${UID} | ${err}`)
+                DebugSend(ShowDebug,`Data failure for profile ${UID} | ${err}`)
             }
         }
 
         /* Fragment loader */
 
         //DivCon
-        console.log("Loading divcontainer fragments.")
+        DebugSend(ShowDebug,"Loading divcontainer fragments.")
         loadFragment("DivContainer", "SidebarContainer", "sidebar.html")
         loadFragment("DivContainer", "LoggedInSidebarContainer", "LoggedSidebar.html")
         loadFragment("DivContainer", "AdminSidebarContainer", "AdminSidebar.html")
@@ -184,13 +179,13 @@ module.exports = {
         loadFragment("DivContainer", "LoggedInHeader", "LoggedHeader.html")
         loadFragment("DivContainer", "Footer", "Footer.html")
         loadFragment("DivContainer", "LoginType", "LoginPage.html")
-        console.log("Loaded divcontainer fragments.")
+        DebugSend(ShowDebug,"Loaded divcontainer fragments.")
 
         /* Fragment Loader */
         /* Services */
 
         Services.BadgeService = function (name, UserId) {
-            console.log(`Triggered due to ${UserId}/${name} being triggered`)
+            DebugSend(ShowDebug,`Triggered due to ${UserId}/${name} being triggered`)
             switch (name) {
                 case "Contributor":
                     return PlayerData[UserId]["Public"]["Badges"].includes("Contributor") ? BadgeData["contributor.Badge"] : ""
@@ -242,7 +237,7 @@ module.exports = {
                 case "FF":
                     return PlayerData[UserId]["Public"]["Badges"].includes("FF") ? BadgeData["founderfamily.Badge"] : ""
                 default:
-                    console.log(name, UserId)
+                    DebugSend(ShowDebug,name, UserId)
                     return ""
             }
         }
@@ -268,7 +263,7 @@ module.exports = {
             }
         }
 
-        console.log(`Hello from RBXRC!  '${SubPath}'`)
+        DebugSend(ShowDebug,`Hello from RBXRC!  '${SubPath}'`)
         if (SubPath === "index") {
             SubPath = "index.html"
         }
@@ -278,7 +273,7 @@ module.exports = {
         let data
         let FileDir = path.join(PUBLIC_DIR, `${SubPath}`)
         let extra = {}
-        console.log(query)
+        DebugSend(ShowDebug,query)
         if (query !== "") {
             const pairs = query.split("&")
             for (const pair of pairs) {
@@ -316,22 +311,22 @@ module.exports = {
                 data = data.replace(
                     /<!--\s*~(\w+):(\w+)\s*-->/g,
                     (_, service, name) => {
-                        console.log(service, name)
+                        DebugSend(ShowDebug,service, name)
                         if (service === "DivContainer" && IsLoggedIn) {
                             const staff = StaffAccess(IsLoggedIn)
 
                             if (fragments[service]["Admin" + name] && staff > 0) {
-                                console.log("Sending a fragment in Admin State")
+                                DebugSend(ShowDebug,"Sending a fragment in Admin State")
                                 return fragments[service]["Admin" + name]
                             }
                             if (fragments[service]["LoggedIn" + name]) {
-                                console.log("Sending a fragment in LoggedIn State")
+                                DebugSend(ShowDebug,"Sending a fragment in LoggedIn State")
                                 return fragments[service]["LoggedIn" + name] || `<!-- Fragment Failure: ${service}:${name} -->`
                             }
                         }
 
 
-                        console.log("Sending a fragment in General State")
+                        DebugSend(ShowDebug,"Sending a fragment in General State")
 
                         //return fragments[service] ? (fragments[service][name] ? fragments[service][name] : `<!-- Unknown fragment: ${service}:${name} -->`) : 
                         return fragments[service]?.[name] ?? `<!-- Unknown fragment: ${service}:${name} -->`
