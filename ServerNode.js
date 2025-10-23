@@ -23,12 +23,18 @@ function getLocalIP() {
     return "127.0.0.1"; // fallback
 }
 
+function DebugSend(ShowDebug,str) {
+    if (ShowDebug) {
+        console.log(`[DEBUG] | ${str}`)
+    }
+}
+
 //Parse Cores
 const Cores = {}
 function ParseCore(coreFile, state) {
     if (!state || !coreFile) {
         if (Debugging) {
-            console.log(`Cannot create core for '${coreFile}'. (Err.InvalidVariables)`)
+            DebugSend(Debugging,`Cannot create core for '${coreFile}'. (Err.InvalidVariables)`)
         }
         return
     }
@@ -37,17 +43,17 @@ function ParseCore(coreFile, state) {
         case ("adddir"):
             if (Cores[CoreName]) {
                 if (Debugging) {
-                    console.log(`Cannot create core for '${coreFile} | ${CoreName}'. (Err.AlreadyExists)`)
-                    console.log("")
-                    console.log("")
+                    DebugSend(Debugging,`Cannot create core for '${coreFile} | ${CoreName}'. (Err.AlreadyExists)`)
+                    DebugSend(Debugging,"")
+                    DebugSend(Debugging,"")
                 }
                 break
             }
             if (CoreName.startsWith("node_") || CoreName.startsWith("core_") || CoreName.startsWith("new")) {
                 if (Debugging) {
-                    console.log(`Cannot create core for '${coreFile} | ${CoreName}'. (Err.NameInvalid)`)
-                    console.log("")
-                    console.log("")
+                    DebugSend(Debugging,`Cannot create core for '${coreFile} | ${CoreName}'. (Err.NameInvalid)`)
+                    DebugSend(Debugging,"")
+                    DebugSend(Debugging,"")
                 }
                 break
             }
@@ -61,43 +67,43 @@ function ParseCore(coreFile, state) {
                 })
             }
             if (Debugging) {
-                console.log(`Created server for '${coreFile} | ${CoreName}'. (Success)`)
-                console.log("")
-                console.log("")
+                DebugSend(Debugging,`Created server for '${coreFile} | ${CoreName}'. (Success)`)
+                DebugSend(Debugging,"")
+                DebugSend(Debugging,"")
             }
             break
         case ("unlinkdir"):
             if (!Cores[CoreName]) {
                 if (Debugging) {
-                    console.log(`Cannot remove core for '${coreFile} | ${CoreName}'. (Err.IsNotSet)`)
-                    console.log("")
-                    console.log("")
+                    DebugSend(Debugging,`Cannot remove core for '${coreFile} | ${CoreName}'. (Err.IsNotSet)`)
+                    DebugSend(Debugging,"")
+                    DebugSend(Debugging,"")
                 }
                 break
             }
             Cores[CoreName].Chokidar.close()
             delete Cores[CoreName]
             if (Debugging) {
-                console.log(`Created server for '${coreFile} | ${CoreName}'. (Success)`)
-                console.log("")
-                console.log("")
+                DebugSend(Debugging,`Created server for '${coreFile} | ${CoreName}'. (Success)`)
+                DebugSend(Debugging,"")
+                DebugSend(Debugging,"")
             }
             break
         default:
-            console.warn(`Unknown state: '${state.toLowerCase()}'. (Err.InvalidState)`)
+            DebugSend(Debugging,`Unknown state: '${state.toLowerCase()}'. (Err.InvalidState)`)
     }
 }
 
 let ChokidarFile = (__dirname).replace(/\//g, "\\");
 
 const CD = chokidar.watch(ChokidarFile, { depth: 0, ignoreInitial: false });
-console.log(`watching path: ${ChokidarFile}`)
+DebugSend(Debugging,`watching path: ${ChokidarFile}`)
 CD.on("all", (event, f) => {
     if (path.resolve(f) === path.resolve(ChokidarFile)) {
-        console.log(`Skipping main... [${event}] ${f}`)
+        DebugSend(Debugging,`Skipping main... [${event}] ${f}`)
         return
     }
-    console.log(`[${event}] ${f}`);
+    DebugSend(Debugging,`[${event}] ${f}`);
     ParseCore(f, event)
 });
 
@@ -109,7 +115,8 @@ const server = http.createServer((req, res) => {
     if (filePath.startsWith("/")) {
         filePath = filePath.slice(1); // Pre-Remove slash
     }
-    console.log(`[CALL] ${filePath} from ${req.socket.remoteAddress}`)
+    const callerstate = (`${req.socket.remoteAddress}` === "::1" && "Localhost:Host" || `${req.socket.remoteAddress}` === "::::ffff:127.0.0.1" && "Localhost:Host" || `${req.socket.remoteAddress}`)
+    DebugSend(Debugging,`[CALL] ${filePath} from ${callerstate}`)
     // Parse the whole HTTP request before considering anything else
     //Todo
     //Split everything and make it so CoreSite == 0, and FileName == .length()
@@ -122,7 +129,7 @@ const server = http.createServer((req, res) => {
         CoreSite = "core"
     }
     if (SubPath === "") {
-        SubPath = "index"  // Replace empty sub paths with index
+        SubPath = "index.html"  // Replace empty sub paths with index
     }
     //Final Sanity Check
     SubPath = SubPath.toLowerCase()
@@ -136,25 +143,25 @@ const server = http.createServer((req, res) => {
     }
     if (!filePath.endsWith("/") && (SubPath == "index" && parts.slice(1).join("/") == "") && !filePath == "") {
         const redirectUrl = filePath + "/" + (query ? "?" + query : "");
-        console.log(redirectUrl)
+        DebugSend(Debugging,redirectUrl)
         res.writeHead(301, { "Location": redirectUrl });
-        console.log("Redirecting user...")
+        DebugSend(Debugging,"Redirecting user...")
         return res.end();
     }
     //Parse Core
-    console.log("Full path:", filePath || "/");
-    console.log("Core site:", CoreSite);
-    console.log("Sub path:", SubPath);
-    console.log("Fie Name:",)
-    console.log(CoreSite == "core")
+    if (Debugging) {
+        DebugSend(Debugging,`Full path: ${filePath || "/"}`);
+        DebugSend(Debugging,`Core site: ${CoreSite}`);
+        DebugSend(Debugging,`Sub path: ${SubPath}`);
+        DebugSend(Debugging,`File Name: ${parts[parts.length] || "index.html"}`)
+        DebugSend(Debugging,`Is Core: ${CoreSite == "core"}`)
+    }
     if (Cores[CoreSite] && Cores[CoreSite].IsAvaliable) {
         const rq = require(Cores[CoreSite].File)
         if (SubPath.toLowerCase().endsWith(".html")) {
-            if (Debugging) {
-                console.log("Code for coresite parsed correctly. (Success)")
-            }
+            DebugSend(Debugging,"Code for coresite parsed correctly. (Success)")
             
-            rq.ParseHTML(SubPath,query).then(result => {
+            rq.ParseHTML(Debugging,SubPath,query).then(result => {
                 res.writeHead(result.Status);
                 return res.end(result.HTML);
                 //let IsRedirect = false
@@ -168,15 +175,13 @@ const server = http.createServer((req, res) => {
                 //}
             })
         } else {
-            rq.GetFile(SubPath,query).then(result => {
+            rq.GetFile(Debugging,SubPath,query).then(result => {
                 res.writeHead(result.Status);
                 return res.end(result.HTML);
             })
         }
     } else if (Cores[CoreSite] && !Cores[CoreSite].IsAvaliable) {
-        if (Debugging) {
-            console.log("Code for coresite failed. (Err.NoCore)")
-        }
+        DebugSend(Debugging,"Code for coresite failed. (Err.NoCore)")
         res.writeHead(404)
         res.end("File unavaliable.")
     } else if (CoreSite == "favicon.ico") {
@@ -191,27 +196,23 @@ const server = http.createServer((req, res) => {
             res.end(data);
         });
     } else {
-        if (Debugging) {
-            console.log(`User attempted to load bad core.  '${CoreSite}' (Err.NoCore)`)
-        }
+        DebugSend(Debugging,`User attempted to load bad core.  '${CoreSite}' (Err.NoCore)`)
         res.writeHead(400);
         res.end("Invalid CORE state.");
     }
-    console.log("")
-    console.log("")
+    DebugSend(Debugging,"")
+    DebugSend(Debugging,"")
 })
 
 server.listen(PORT, () => {
-    if (Debugging) {
-        console.log("-- DEBUGGING | NETWORKING --")
-        console.log(`Server running on:`);
-        console.log(` - Local: localhost:${PORT}`);
-        if (serverIP !== "127.0.0.1") {
-            console.log(` - LAN:   ${serverIP}:${PORT}`);
-        }
-        console.log("")
-        console.log("")
+    DebugSend(Debugging,"-- DEBUGGING | NETWORKING --")
+    DebugSend(Debugging,`Server running on:`);
+    DebugSend(Debugging,` - Local: localhost:${PORT}`);
+    if (serverIP !== "127.0.0.1") {
+        DebugSend(Debugging,` - LAN:   ${serverIP}:${PORT}`);
     }
+    DebugSend(Debugging,"")
+    DebugSend(Debugging,"")
 });
 
 process.stdin.setRawMode(true)
@@ -220,48 +221,38 @@ process.stdin.setEncoding("utf-8")
 
 process.stdin.on("data", (key) => {
     if (key == "q" && server.listening) {
-        console.log("Closing server")
+        DebugSend(Debugging,"Closing server")
         try {
             server.close()
-            if (Debugging) {
-                console.log(`Server closed`)
-            }
+            DebugSend(Debugging,`Server closed`)
             process.stdin.pause()
             process.stdin.removeAllListeners("data")
-            if (Debugging) {
-                console.log(`STDIN Closed`)
-            }
+            DebugSend(Debugging,`STDIN Closed`)
             CD.close()
-            if (Debugging) {
-                console.log(`Closed watcher for: 'ServerWatcher'`)
-            }
+            DebugSend(Debugging,`Closed watcher for: 'ServerWatcher'`)
             Object.entries(Cores).forEach(([coreName, core]) => {
                 if (core?.Chokidar) {
                     core.Chokidar.close();
-                    if (Debugging) {
-                        console.log(`Closed watcher for: '${coreName}'`)
-                    }
+                    DebugSend(Debugging,`Closed watcher for: '${coreName}'`)
                 }
             });
             //final
-            if (Debugging) {
-                console.log("Succeeded in closing.")
-            }
+            DebugSend(Debugging,"Succeeded in closing.")
         } catch (err) {
-            if (Debugging) {
-                console.log(`${err}`)
-            }
-            console.log(`Failed to close server.`)
+            DebugSend(Debugging,`${err}`)
+            DebugSend(Debugging,`Failed to close server.`)
         }
     }
     if (key == "d" && server.listening) {
-        console.log("Toggling Debugging mode...")
+        console.log("[DEBUG] | Toggling Debugging mode...")
         Debugging = !Debugging
         switch (Debugging) {
             case (true):
-                console.log("Toggled On")
+                console.log("[DEBUG] | Toggled On")
+                break
             case (false):
-                console.log("Toggled Off")
+                console.log("[DEBUG] | Toggled Off")
+                break
         }
     }
 })
