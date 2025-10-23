@@ -37,6 +37,18 @@ body {
   margin-top: 4px;
 }
 
+.profile-info-fndr h1 {
+  margin: 0;
+  font-size: 22px;
+  color: #000000;
+}
+
+.profile-info-cfndr h1 {
+  margin: 0;
+  font-size: 22px;
+  color: #4B00FD;
+}
+
 .profile-info-staff h1 {
   margin: 0;
   font-size: 22px;
