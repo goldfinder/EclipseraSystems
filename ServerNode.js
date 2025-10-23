@@ -33,28 +33,22 @@ function DebugSend(ShowDebug,str) {
 const Cores = {}
 function ParseCore(coreFile, state) {
     if (!state || !coreFile) {
-        if (Debugging) {
-            DebugSend(Debugging,`Cannot create core for '${coreFile}'. (Err.InvalidVariables)`)
-        }
+        DebugSend(Debugging,`Cannot create core for '${coreFile}'. (Err.InvalidVariables)`)
         return
     }
     const CoreName = path.basename(coreFile).split(" ", 1)[0].toLowerCase();
     switch (state.toLowerCase()) {
         case ("adddir"):
             if (Cores[CoreName]) {
-                if (Debugging) {
-                    DebugSend(Debugging,`Cannot create core for '${coreFile} | ${CoreName}'. (Err.AlreadyExists)`)
-                    DebugSend(Debugging,"")
-                    DebugSend(Debugging,"")
-                }
+                DebugSend(Debugging,`Cannot create core for '${coreFile} | ${CoreName}'. (Err.AlreadyExists)`)
+                DebugSend(Debugging,"")
+                DebugSend(Debugging,"")
                 break
             }
             if (CoreName.startsWith("node_") || CoreName.startsWith("core_") || CoreName.startsWith("new")) {
-                if (Debugging) {
-                    DebugSend(Debugging,`Cannot create core for '${coreFile} | ${CoreName}'. (Err.NameInvalid)`)
-                    DebugSend(Debugging,"")
-                    DebugSend(Debugging,"")
-                }
+                DebugSend(Debugging,`Cannot create core for '${coreFile} | ${CoreName}'. (Err.NameInvalid)`)
+                DebugSend(Debugging,"")
+                DebugSend(Debugging,"")
                 break
             }
             Cores[CoreName] = {
@@ -66,28 +60,22 @@ function ParseCore(coreFile, state) {
                     }
                 })
             }
-            if (Debugging) {
-                DebugSend(Debugging,`Created server for '${coreFile} | ${CoreName}'. (Success)`)
-                DebugSend(Debugging,"")
-                DebugSend(Debugging,"")
-            }
+            DebugSend(Debugging,`Created server for '${coreFile} | ${CoreName}'. (Success)`)
+            DebugSend(Debugging,"")
+            DebugSend(Debugging,"")
             break
         case ("unlinkdir"):
             if (!Cores[CoreName]) {
-                if (Debugging) {
-                    DebugSend(Debugging,`Cannot remove core for '${coreFile} | ${CoreName}'. (Err.IsNotSet)`)
-                    DebugSend(Debugging,"")
-                    DebugSend(Debugging,"")
-                }
+                DebugSend(Debugging,`Cannot remove core for '${coreFile} | ${CoreName}'. (Err.IsNotSet)`)
+                DebugSend(Debugging,"")
+                DebugSend(Debugging,"")
                 break
             }
             Cores[CoreName].Chokidar.close()
             delete Cores[CoreName]
-            if (Debugging) {
-                DebugSend(Debugging,`Created server for '${coreFile} | ${CoreName}'. (Success)`)
-                DebugSend(Debugging,"")
-                DebugSend(Debugging,"")
-            }
+            DebugSend(Debugging,`Created server for '${coreFile} | ${CoreName}'. (Success)`)
+            DebugSend(Debugging,"")
+            DebugSend(Debugging,"")
             break
         default:
             DebugSend(Debugging,`Unknown state: '${state.toLowerCase()}'. (Err.InvalidState)`)
@@ -149,13 +137,11 @@ const server = http.createServer((req, res) => {
         return res.end();
     }
     //Parse Core
-    if (Debugging) {
-        DebugSend(Debugging,`Full path: ${filePath || "/"}`);
-        DebugSend(Debugging,`Core site: ${CoreSite}`);
-        DebugSend(Debugging,`Sub path: ${SubPath}`);
-        DebugSend(Debugging,`File Name: ${parts[parts.length] || "index.html"}`)
-        DebugSend(Debugging,`Is Core: ${CoreSite == "core"}`)
-    }
+    DebugSend(Debugging,`Full path: ${filePath || "/"}`);
+    DebugSend(Debugging,`Core site: ${CoreSite}`);
+    DebugSend(Debugging,`Sub path: ${SubPath}`);
+    DebugSend(Debugging,`File Name: ${parts[parts.length] || "index.html"}`)
+    DebugSend(Debugging,`Is Core: ${CoreSite == "core"}`)
     if (Cores[CoreSite] && Cores[CoreSite].IsAvaliable) {
         const rq = require(Cores[CoreSite].File)
         if (SubPath.toLowerCase().endsWith(".html")) {
