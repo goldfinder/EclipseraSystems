@@ -6,6 +6,11 @@ const os = require("os");
 const path = require("path");
 const { fileURLToPath } = require("url");
 
+//Server Vars
+const PORT=3000
+let Ident = null
+let Debugging = null
+
 //EngineBase
 function getLocalIP() {
 	const interfaces = os.networkInterfaces();
@@ -19,41 +24,61 @@ function getLocalIP() {
 	return "127.0.0.1"
 }
 
+function print(...args) { //So I don't get confused why print() doesn't work
+	if (Ident === null) {
+		console.log(...args)
+	} else if (Ident !== null) {
+		console.log(Ident+" | ",...args)
+	}
+}
 function debugSend(str) {
 	if(Debugging) {
-		console.log(`[DEBUG] | ${str}`)
+		print(`[DEBUG] | ${str}`)
 	}
 }
-function print(...args) { //So I don't get confused why print() doesn't work
-	console.log(...args)
-}
 
+//Server
 
-//Server Vars
-const PORT=3000
-let Debugging = true
+const serverIP = getLocalIP();
+print(serverIP)
 
+const server = http.createServer((req, res) => {
+	const urlParts = req.url.split("?");
+    let filePath = urlParts[0]
+    const query = urlParts[1] || ""
+    if (filePath.startsWith("/")) {
+        filePath = filePath.slice(1); // Pre-Remove slash
+    }
+    const callerstate = (`${req.socket.remoteAddress}` === "::1" && "Localhost:Host" || `${req.socket.remoteAddress}` === "::::ffff:127.0.0.1" && "Localhost:Host" || `${req.socket.remoteAddress}`)
+    debugSend(`[CALL] ${filePath} from ${callerstate}, ${query}`)
+    res.writeHead(404)
+    return res.end();
+})
 
+server.listen(PORT, () => {
+    debugSend("-- DEBUGGING | NETWORKING --")
+    debugSend(`Server running on:`);
+    debugSend(` - Local: localhost:${PORT}`);
+    if (serverIP !== "127.0.0.1") {
+        debugSend(` - LAN:   ${serverIP}:${PORT}`);
+    }
+    debugSend("")
+    debugSend("")
+});
 
-
-
-
-//Keys
-process.stdin.setRawMode(true)
-process.stdin.resume()
-process.stdin.setEncoding("utf-8")
-
-process.stdin.on("data", (key) => {
-	if (key == "q" && server.listening) {
-
+process.on('message',(packet) => {
+	//Type Checker
+	if (packet.type === "Debugging") {
+		print("Recieved a packet to change debugging:",Debugging,">",packet.value)
+		Debugging = packet.value
 	}
-	if (key == "r" && server.listening) {
-
+	if (packet.type === "ServerIdent"){
+		Ident = packet.value
+		debugSend("Identified")
 	}
-	if (key == "d") {
-		print("Changing Debug Mode:",Debugging,">",!Debugging)
-		Debugging = !Debugging
-		print("Changed Debug Mode:",Debugging)
+	if (packet.type === "InternalNotifier"){
+		if (packet.value === "Shutdown") {
+			process.exit(0)
+		}
 	}
 })
-print("A")
