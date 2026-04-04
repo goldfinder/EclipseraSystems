@@ -1,0 +1,490 @@
+const path = require("path");
+const fs = require("fs");
+const { error } = require("console");
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+function DebugSend(ShowDebug, str) {
+    if (ShowDebug) {
+        console.log(`[DEBUG] | [RBXRC Server] | ${str}`)
+    }
+}
+
+function showShortenedNumber(num) {
+    const units = [
+        { value: 1_000_000_000, suffix: 'B' },
+        { value: 1_000_000, suffix: 'M' },
+        { value: 1_000, suffix: 'K' },
+    ];
+
+    for (const { value, suffix } of units) {
+        if (num >= value) {
+            let short = (Math.floor((num / value) * 10) / 10).toString();
+            if (short.endsWith('.0')) short = short.slice(0, -2);
+            return short + suffix;
+        }
+    }
+
+    return num.toString();
+}
+
+const BC_MAP = {
+    "BC4": "M", "MBC": "M",
+    "BC3": "O", "OBC": "O",
+    "BC2": "T", "TBC": "T"
+};
+
+function getBC(str) {
+    if (!str) return "";
+        
+    // Hash map lookup is O(1) constant time
+    const prefix = BC_MAP[str] ?? "";
+        
+    return str.includes("BC") ? `${prefix}BC.Subscription` : "";
+}
+
+function HTMLParse(ShowDebug, filepath,extradata) {
+    return new Promise((resolve, reject) => {
+        let IsLoggedIn = false
+        let ViewingProfile = false
+        let Services = {}
+        let PlayerData = {}
+        let fragments = {}
+
+        IsLoggedIn = extradata["IsLoggedIn"]
+        ViewingProfile = extradata["ViewingProfile"]
+        Services = extradata["Services"]
+        PlayerData = extradata["PlayerData"]
+        fragments = extradata["fragments"]
+
+        if (!fs.existsSync(filepath)) {
+            return resolve({Status:404,HTML:"No File"})
+        }
+        if (!IsLoggedIn && ViewingProfile == true) {
+            return resolve({Status:307,HTML:"logintemp.html"})
+        }
+        fs.readFile(filepath, "utf8", (err, data) => {
+            if (err) {
+                return resolve({ Status: 503, HTML: "Error reading file" })
+            }
+            if (ViewingProfile !== true && ViewingProfile !== false) {
+                data = data.replace(
+                    /<!--\s*~(\w+):(\w+)\s*-->/g,
+                    (_, service, name) => {
+                        if (Services[service] && ViewingProfile) {
+                            return Services[service](name, ViewingProfile)
+                        }
+                        return _;
+                    }
+                );
+            }
+            data = data.replace(
+                /<!--\s*~(\w+):(\w+)\s*-->/g,
+                (_, service, name) => {
+                    DebugSend(ShowDebug, service, name)
+                    if (service === "DivContainer" && IsLoggedIn) {
+                        const staff = StaffAccess(IsLoggedIn)
+
+                        if (fragments[service]["Admin" + name] && staff > 0) {
+                            DebugSend(ShowDebug, "Sending a fragment in Admin State")
+                            return fragments[service]["Admin" + name]
+                        }
+                        if (fragments[service]["LoggedIn" + name]) {
+                            DebugSend(ShowDebug, "Sending a fragment in LoggedIn State")
+                            return fragments[service]["LoggedIn" + name] || `<!-- Fragment Failure: ${service}:${name} -->`
+                        }
+                    }
+
+
+                    DebugSend(ShowDebug, "Sending a fragment in General State")
+
+                    //return fragments[service] ? (fragments[service][name] ? fragments[service][name] : `<!-- Unknown fragment: ${service}:${name} -->`) : 
+                    return fragments[service]?.[name] ?? `<!-- Unknown fragment: ${service}:${name} -->`
+                    /*
+                    if (fragments[service] && fragments[service][name]) {
+                      return fragments[service][name]
+                    }
+                    return `<!-- Unknown fragment: ${service}:${name} -->`
+                    */
+                }
+            );
+            data = data.replace(
+                /{ATH}/g,
+                IsLoggedIn ? showShortenedNumber(PlayerData[IsLoggedIn]["Currency"]["ATH"]) : "ERR"
+            )
+            data = data.replace(
+                /{AMY}/g,
+                IsLoggedIn ? showShortenedNumber(PlayerData[IsLoggedIn]["Currency"]["AMY"]) : "ERR"
+            )
+            data = data.replace(
+                /{AMY-PRF}/g,
+                ViewingProfile ? showShortenedNumber(PlayerData[ViewingProfile]["Currency"]["AMY"]) : "ERR"
+            )
+            data = data.replace(
+                /{SOL-PRF}/g,
+                ViewingProfile ? showShortenedNumber(PlayerData[ViewingProfile]["Currency"]["SOL"]) : "ERR"
+            )
+            data = data.replace(
+                /{FRDCNT-PRF}/g,
+                "ERR"
+            )
+            data = data.replace(
+                /{GRPCNT-PRF}/g,
+                "ERR"
+            )
+            data = data.replace(
+                /{SOL}/g,
+                IsLoggedIn ? showShortenedNumber(PlayerData[IsLoggedIn]["Currency"]["SOL"]) : "ERR"
+            )
+            data = data.replace(
+                /{PFINFO}/g,
+                (_) => {
+                    if (ViewingProfile) {
+                        let x = PlayerData[ViewingProfile]["ProfileColor"] ? PlayerData[ViewingProfile]["ProfileColor"] : "profile-info"
+                        return x
+                    }
+                    return "profile-info"
+                }
+            )
+            data = data.replace(
+                /{JOIN-PRF}/g,
+                (_) => {
+                    if (ViewingProfile) {
+                        let data = ViewingProfile ? PlayerData[ViewingProfile]["Date"] : "ERR"
+                        let creationdate = data.split(":")
+                        let month = months[parseInt(creationdate[1], 10) - 1]
+                        let year = creationdate[0]
+                        let day = creationdate[2]
+                        let str = "ERR"
+                        if (month && year && day) {
+                            str = `${month} ${day}, ${year}`
+                        }
+                        return str
+                    }
+                    return "ERR"
+                }
+            )
+            data = data.replace(
+                /{USR-PRF}/g,
+                ViewingProfile ? PlayerData[ViewingProfile]["Name"] : "ERR"
+            )
+            data = data.replace(
+                /{ABTME-PRF}/g,
+                ViewingProfile ? PlayerData[ViewingProfile]["AboutMe"] : "ERR"
+            )
+            data = data.replace(
+                /{UNAME}/g,
+                IsLoggedIn ? PlayerData[IsLoggedIn]["Name"] : "ERR"
+            )
+            data = data.replace(
+                /{PLRID}/g,
+                IsLoggedIn ? IsLoggedIn : "ERR"
+            )
+            resolve({Status:200,HTML:data})
+        })
+    })
+
+}
+
+module.exports = {
+    Get404: (ShowDebug) => {
+        const filepath = path.join(__dirname, "public", "error.html")
+        return new Promise(resolve => {
+            return resolve(HTMLParse(filepath).then(result => {
+                return result
+            }))
+        })
+    },
+    GetFile: (ShowDebug, SubPath) => {
+        const prt = path.join(__dirname, "public", SubPath)
+
+        return new Promise((resolve) => {
+            if (!fs.existsSync(prt)) {
+                return resolve({ Status: 404, HTML: "No File" });
+            }
+            fs.readFile(prt, "utf8", (err, data) => {
+                if (err) {
+                    return resolve({ Status: 503, HTML: "Error reading file" })
+                }
+                return resolve({ Status: 200, HTML: data })
+            })
+        })
+    },
+    ParseHTML: (ShowDebug, SubPath, query) => {
+        //Early Registries
+        const PlayerData = {};
+        const fragments = {};
+        const BadgeData = {};
+        const Services = {};
+        const ErrorData = {};
+        const PUBLIC_DIR = path.join(__dirname, "public");
+        const SITE_SOURS = path.join(PUBLIC_DIR, "SiteSources")
+        const PLRDAT_SOU = path.join(PUBLIC_DIR, "PlayerSources")
+        const BADGES_SOU = path.join(PUBLIC_DIR, "BadgeData")
+        let errc = false
+        function loadFragment(service, name, filename) {
+            DebugSend(ShowDebug, `Loading service ${service}:${name}`)
+            const fragPath = path.join(SITE_SOURS, filename);
+            try {
+                const content = fs.readFileSync(fragPath, "utf8");
+                if (!fragments[service]) fragments[service] = {};
+                fragments[service][name] = content;
+                DebugSend(ShowDebug, `Fragment Loaded: ${service}:${name}`)
+            } catch (err) {
+                if (!fragments[service]) fragments[service] = {};
+                fragments[service][name] = `<!-- Fragment Load Fail: ${service}:${name} -->`;
+                DebugSend(ShowDebug, `Fragment Failure: ${service}:${name} | ${err}`)
+            }
+        }
+        async function getUserMembershipTier(UserId, membership) {
+            const data = PlayerData[UserId];
+            if (!data) { 
+                console.log(`[DEBUG] Step 1 Fail: No data for ID ${UserId}`); 
+                return ""; 
+            }
+
+            const memberships = data["Memberships"];
+            if (!memberships) { 
+                console.log(`[DEBUG] Step 3 Fail: No "Memberships" key for ID ${UserId}`); 
+                return ""; 
+            }
+
+            const tier = memberships[membership]?.["Tier"];
+            console.log(`[DEBUG] Success! Found Tier: ${tier}`);
+            
+            return tier ?? "";
+        }
+        // Read all files in the folder
+        fs.readdir(PLRDAT_SOU, (err, files) => {
+            if (err) {
+                return DebugSend(ShowDebug, 'Error reading player folder:', err);
+            }
+
+            files.forEach(file => {
+                const filePath = path.join(PLRDAT_SOU, file);
+                if (path.extname(filePath) === '.json') {
+                    const userId = path.parse(file).name;
+                    CreateProfile(userId, filePath)
+                }
+            });
+
+            DebugSend(ShowDebug, 'PlayerData loaded');
+        });
+
+        fs.readdir(BADGES_SOU, (err, files) => {
+            if (err) {
+                return DebugSend(ShowDebug, 'Error reading player folder:', err);
+            }
+
+            files.forEach(file => {
+                try {
+                    const filePath = path.join(BADGES_SOU, file);
+                    const filedat = fs.readFileSync(filePath, 'utf8');
+                    const PARSE = path.parse(file)
+                    DebugSend(ShowDebug, PARSE)
+                    let EXT = PARSE.ext
+                    EXT = EXT.slice(1)
+                    let NAME = PARSE.name
+                    const typeMap = {
+                        subs: "Subscription",
+                        stf: "Staff",
+                        bdg: "Badge",
+                        evt: "Event",
+                        cont: "ContentCreator",
+                        // add more as needed
+                    };
+                    const BadgeName = `${NAME}.${typeMap[EXT] || EXT}`;
+                    BadgeData[BadgeName] = filedat
+                    DebugSend(ShowDebug, `Badge '${BadgeName}' loaded`)
+                } catch (err) {
+                    DebugSend(ShowDebug, "Failed to load badge.", err)
+                }
+            });
+            DebugSend(ShowDebug, 'Badges loaded');
+        });
+
+        function CreateProfile(UID, JSONFile) {
+            try {
+                const fileContents = fs.readFileSync(JSONFile, 'utf8');
+                const data = JSON.parse(fileContents)
+                if (data.Name && data.CreationDate && PlayerData[UID] === undefined) {
+                    DebugSend(ShowDebug, data.SOL ?? 0, data.AMY ?? 0, data.ATH ?? 0)
+                    if (Array.isArray(data.Staff)) {
+                        DebugSend(ShowDebug, data.Staff)
+                        DebugSend(ShowDebug, data.Staff[1])
+                    }
+                    PlayerData[UID] = {
+                        "Name": data.Name,
+                        "Date": data.CreationDate,
+                        "AboutMe": data.AboutMe || "A generic RBXRC user.",
+
+                        "Currency": {
+                            ATH: data.ATH ?? 0,
+                            AMY: data.AMY ?? 0,
+                            SOL: data.SOL ?? 0,
+                        },
+
+                        "Public": {
+                            Staff: Array.isArray(data.Staff) ? [...data.Staff] : [],
+                            Badges: Array.isArray(data.Badges) ? [...data.Badges] : []
+                        },
+
+                        "Private": {
+                            DiscordId: data.DiscordId || null
+                        },
+
+                        "Server": {
+                            Password: data.password || null,
+                            Salt: data.salt || null
+                        }
+                    }
+                    if (Array.isArray(data.Staff) && data.Staff[1] === "Founder" && PlayerData[UID]["ProfileColor"] === undefined) {
+                        PlayerData[UID]["ProfileColor"] = "profile-info-fndr"
+                    }
+                    if (Array.isArray(data.Staff) && data.Staff[1] === "CFounder" && PlayerData[UID]["ProfileColor"] === undefined) {
+                        PlayerData[UID]["ProfileColor"] = "profile-info-cfndr"
+                    }
+                    if (Array.isArray(data.Staff) && data.Staff.length > 0 && PlayerData[UID]["ProfileColor"] === undefined && PlayerData[UID]["Public"]["Staff"][1] !== "TMP") {
+                        PlayerData[UID]["ProfileColor"] = "profile-info-staff"
+                    }
+                    if (data["Badges"].includes("FF") && PlayerData[UID]["ProfileColor"] === undefined) {
+                        PlayerData[UID]["ProfileColor"] = "profile-info-ff"
+                    }
+                    if (data["Badges"].includes("CC-YT") && PlayerData[UID]["ProfileColor"] === undefined) {
+                        PlayerData[UID]["ProfileColor"] = "profile-info-cc-yt"
+                    }
+                    if (data["Badges"].includes("CC-TW") && PlayerData[UID]["ProfileColor"] === undefined) {
+                        PlayerData[UID]["ProfileColor"] = "profile-info-cc-tw"
+                    }
+                    const MBSP1 = getUserMembershipTier(UID,"Founder")
+                    if (MBSP1.includes("GOLD") && PlayerData[UID]["ProfileColor"] === undefined) {
+                        PlayerData[UID]["ProfileColor"] = "profile-info-gf"
+                    }
+                    if (MBSP1.includes("SILVER") && PlayerData[UID]["ProfileColor"] === undefined) {
+                        PlayerData[UID]["ProfileColor"] = "profile-info-sf"
+                    }
+                    if (MBSP1.includes("COPPER") && PlayerData[UID]["ProfileColor"] === undefined) {
+                        PlayerData[UID]["ProfileColor"] = "profile-info-bf"
+                    }
+                    DebugSend(ShowDebug, `Profile loaded: ${UID}`)
+                } else {
+                    throw "Character profile missing data or already created."
+                }
+            } catch (err) {
+                DebugSend(ShowDebug, `Data failure for profile ${UID} | ${err}`)
+            }
+        }
+
+        /* Fragment loader */
+
+        //DivCon
+        DebugSend(ShowDebug, "Loading divcontainer fragments.")
+        loadFragment("DivContainer", "SidebarContainer", "sidebar.html")
+        loadFragment("DivContainer", "LoggedInSidebarContainer", "LoggedSidebar.html")
+        loadFragment("DivContainer", "AdminSidebarContainer", "AdminSidebar.html")
+        loadFragment("DivContainer", "Header", "Header.html")
+        loadFragment("DivContainer", "LoggedInHeader", "LoggedHeader.html")
+        loadFragment("DivContainer", "Footer", "Footer.html")
+        loadFragment("DivContainer", "LoginType", "LoginPage.html")
+        DebugSend(ShowDebug, "Loaded divcontainer fragments.")
+
+        /* Fragment Loader */
+        /* Services */
+
+        Services.BadgeService = function (name, UserId) {
+            DebugSend(ShowDebug, `Triggered due to ${UserId}/${name} being triggered`)
+            switch (name) {
+                case "Contributor":
+                    return PlayerData[UserId]["Public"]["Badges"].includes("Contributor") ? BadgeData["contributor.Badge"] : ""
+                case "BadgeStaff":
+                    if (PlayerData[UserId]["Public"]["Staff"]?.length === 0 || PlayerData[UserId]["Public"]["Staff"][1] == "TMP") {
+                        return ""
+                    }
+                    if (PlayerData[UserId]["Public"]["Staff"][0] === "Corporate") {
+                        return BadgeData["Corporate.Staff"]
+                    }
+                    return BadgeData["Staff.Staff"]
+                case "StaffPos":
+                    return BadgeData[PlayerData[UserId]["Public"]["Staff"][1] + ".Staff"] ? BadgeData[PlayerData[UserId]["Public"]["Staff"][1] + ".Staff"] : ""
+                case "Legacy":
+                    return PlayerData[UserId]["Public"]["Badges"].includes("LEGACY") ? BadgeData["Legacy.Badge"] : ""
+                case "BC":
+                    const MBSP2 = getUserMembershipTier(UserId,"BC")
+                    console.log(MBSP2)
+                    return getBC(MBSP2)
+                case "ContentCreator":
+                    if (PlayerData[UserId]["Public"]["Badges"].includes("CC-YT")) {
+                        return BadgeData["cc-youtube.ContentCreator"]
+                    }
+                    if (PlayerData[UserId]["Public"]["Badges"].includes("CC-TW")) {
+                        return BadgeData["cc-twitch.ContentCreator"]
+                    }
+                    return ""
+                case "FNDRCLB":
+                    const MBSP3 = getUserMembershipTier(UserId,"Founder")
+                    if (MBSP3.includes("GOLD")) {
+                        return BadgeData["goldfounder.Subscription"]
+                    }
+                    if (MBSP3.includes("SILVER")) {
+                        return BadgeData["silvfounder.Subscription"]
+                    }
+                    if (MBSP3.includes("COPPER")) {
+                        return BadgeData["bronfounder.Subscription"]
+                    }
+                    return ""
+                case "FF":
+                    return PlayerData[UserId]["Public"]["Badges"].includes("FF") ? BadgeData["founderfamily.Badge"] : ""
+                default:
+                    DebugSend(ShowDebug, name, UserId)
+                    return ""
+            }
+        }
+
+        /* Services */
+
+        DebugSend(ShowDebug, `Hello from RBXRC!  '${SubPath}'`)
+        if (SubPath === "index") {
+            SubPath = "index.html"
+        }
+        let File
+        let IsLoggedIn = false
+        let ViewingProfile = false
+        let data
+        let FileDir = path.join(PUBLIC_DIR, `${SubPath}`)
+        let extra = {}
+        DebugSend(ShowDebug, query)
+        if (query !== "") {
+            const pairs = query.split("&")
+            for (const pair of pairs) {
+                const [key, value] = pair.split("=")
+                if (key) {
+                    extra[key] = value ? decodeURIComponent(value) : true;
+                }
+            }
+        }
+        if (SubPath === "profile.html") {
+            ViewingProfile = true
+            if (extra["p"] || IsLoggedIn !== false) {
+                ViewingProfile = extra["p"] ? extra["p"] : (extra["UID"] ? extra["UID"] : true)
+                let ViewProfile = path.join(PLRDAT_SOU, `${ViewingProfile}.json`)
+                DebugSend(ShowDebug,`${ViewProfile} | ${ViewingProfile}`)
+                if (ViewingProfile !== true || ViewingProfile !== false) {
+                    if (!fs.existsSync(ViewProfile)) {
+                        errc = true
+                    }
+                }
+            }
+        }
+        return new Promise((resolve) => {
+            console.log(`"${FileDir}"`)
+            let x = {}
+            x["IsLoggedIn"] = IsLoggedIn
+            x["ViewingProfile"] = ViewingProfile
+            x["Services"] = Services
+            x["fragments"] = fragments
+            x["PlayerData"] = PlayerData
+            HTMLParse(ShowDebug, FileDir,x).then(html => {
+                console.log(html)
+                resolve(errc === false ? { Status: html.Status, HTML: html.HTML } : { Status: 404, HTML: "No file." })
+            }).catch()
+        })
+    }
+}
